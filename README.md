@@ -165,7 +165,8 @@ After completing the course, you should be able to:
 
 **9 hours**
 
-📄 **Detailed notes:** [BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md](BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md)
+📄 **Detailed notes:** [BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md](BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md)\
+📄 **Supplementary (topics missing from the slides — TRC, file operations, heap/ordered files, linear hashing, dynamic multilevel indexing):** [BACSE202_Module-3_Supplementary_Missing_Topics.md](BACSE202_Module-3_Supplementary_Missing_Topics.md)
 
 ## File Structures
 
