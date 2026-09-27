@@ -167,7 +167,9 @@ After completing the course, you should be able to:
 
 📄 **Detailed notes:** [BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md](BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md)\
 📄 **Supplementary (topics missing from the slides — TRC, file operations, heap/ordered files, linear hashing, dynamic multilevel indexing):** [BACSE202_Module-3_Supplementary_Missing_Topics.md](BACSE202_Module-3_Supplementary_Missing_Topics.md)\
-📄 **Primary index explained:** [BACSE202_Primary_Index_Explained.md](BACSE202_Primary_Index_Explained.md)
+📄 **Primary index explained:** [BACSE202_Primary_Index_Explained.md](BACSE202_Primary_Index_Explained.md)\
+📄 **B-tree and B+-tree (PDF):** [BACSE202_B-Tree_and_B+Tree.pdf](BACSE202_B-Tree_and_B+Tree.pdf)\
+📄 **Translating SQL queries into relational algebra (PDF):** [BACSE202_SQL_to_Relational_Algebra.pdf](BACSE202_SQL_to_Relational_Algebra.pdf)
 
 ## File Structures
 
