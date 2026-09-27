@@ -165,6 +165,8 @@ After completing the course, you should be able to:
 
 **9 hours**
 
+📄 **Detailed notes:** [BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md](BACSE202_Module-3_Physical_Database_Design_and_Query_Processing.md)
+
 ## File Structures
 
 -   Operations on files
