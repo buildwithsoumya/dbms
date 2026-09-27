@@ -84,21 +84,27 @@ Slide example: an Employee table (Name, Age, Gender, Salary) with **100 records 
   - Slide example: `Name(30) | Ssn(9) | Salary(4) | Job_code(4) | Department(20) | Hire_date(…)`. Fields start at byte 1, 31, 40, 44, 48, 68, and the record is 71 bytes long.
 - **Variable-length records** – some fields vary in size (e.g. `Name`, `Department`). They use **separator characters**: one to separate a field name from its value (`=`), one between fields, and one to terminate the record.
 
-With block size $B$ bytes and fixed record size $R$ bytes ($B \ge R$):
+With block size $`B`$ bytes and fixed record size $`R`$ bytes ($`B \ge R`$):
 
-$$\text{Blocking factor } bfr = \left\lfloor \frac{B}{R} \right\rfloor \qquad \text{Unused space per block} = B - (bfr \times R)$$
+```math
+\text{Blocking factor } bfr = \left\lfloor \frac{B}{R} \right\rfloor \qquad \text{Unused space per block} = B - (bfr \times R)
+```
 
-$$\text{Blocks needed for } r \text{ records: } b = \left\lceil \frac{r}{bfr} \right\rceil$$
+```math
+\text{Blocks needed for } r \text{ records: } b = \left\lceil \frac{r}{bfr} \right\rceil
+```
 
-**Worked example (Supplementary):** $B = 512$, $R = 100$, $r = 30{,}000$:
-$bfr = \lfloor 512/100 \rfloor = 5$, unused space $= 512 - 500 = 12$ bytes/block, $b = \lceil 30000/5 \rceil = 6000$ blocks.
+**Worked example (Supplementary):** $`B = 512`$, $`R = 100`$, $`r = 30{,}000`$:
+$`bfr = \lfloor 512/100 \rfloor = 5`$, unused space $`= 512 - 500 = 12`$ bytes/block, $`b = \lceil 30000/5 \rceil = 6000`$ blocks.
 
 ## 1.5 I/O cost
 
 - **I/O cost** is the number of blocks that must be read or written to access a record.
 - DBMSs are optimised to **minimise I/O cost**, because a disk access is orders of magnitude slower than a memory access.
 
-$$\text{Disk Access Time} = \text{Seek Time} + \text{Rotational Latency} \;(+\;\text{Block transfer time})$$
+```math
+\text{Disk Access Time} = \text{Seek Time} + \text{Rotational Latency} \;(+\;\text{Block transfer time})
+```
 
 ## 1.6 Operations on files
 
@@ -117,7 +123,7 @@ Records are stored **in order of insertion** (new records go at the end of the f
 | Operation | Behaviour | Cost |
 |---|---|---|
 | Insert | Very efficient: read the last block, add the record, write it back | ~2 block accesses |
-| Search | **Linear search** | Average $b/2$, worst $b$ block accesses, i.e. $O(n)$ |
+| Search | **Linear search** | Average $`b/2`$, worst $`b`$ block accesses, i.e. $`O(n)`$ |
 | Delete | Find the block, remove the record (leaves a hole), **or** set a *deletion bit/marker* | Search + 1 write; needs periodic reorganisation |
 | Update | Search + rewrite | Variable-length records may have to move |
 
@@ -129,10 +135,10 @@ Records are **physically sorted on an ordering key** field.
 
 | Operation | Behaviour | Cost |
 |---|---|---|
-| Search on the ordering key | **Binary search** over blocks | $\lceil \log_2 b \rceil$ block accesses, i.e. $O(\log n)$ |
+| Search on the ordering key | **Binary search** over blocks | $`\lceil \log_2 b \rceil`$ block accesses, i.e. $`O(\log n)`$ |
 | Insert | **Expensive**: must find the correct position and shift records (often done using an *overflow file* that is merged later) | High |
 | Delete / Update of key | **Expensive**, same reason as insert | High |
-| Reading in key order | Very efficient (no sorting needed) | $b$ |
+| Reading in key order | Very efficient (no sorting needed) | $`b`$ |
 
 **Algorithm – Binary search on an ordering key of a disk file** (slide algorithm 17.1):
 
@@ -196,16 +202,18 @@ A good file organisation gives:
 Key ──► Hash Function ──► Hash value ──► bucket 0 | 1 | 2 | … | n
 ```
 
-Slide illustration: primary keys 100, 122, 106, 144, 223 with $H(x) = x \bmod 5$. $H(106) = 1$, so record (106, Ethan, Indore) goes to bucket 1. Likewise 100 → 0, 122 → 2, 144 → 4 and 223 → 3.
+Slide illustration: primary keys 100, 122, 106, 144, 223 with $`H(x) = x \bmod 5`$. $`H(106) = 1`$, so record (106, Ethan, Indore) goes to bucket 1. Likewise 100 → 0, 122 → 2, 144 → 4 and 223 → 3.
 
 ### Hash function
 
-A hash function maps a key from a set $K$ into an index of a table of size $n$:
+A hash function maps a key from a set $`K`$ into an index of a table of size $`n`$:
 
-$$h : K \rightarrow \{0, 1, \dots, n-1\}$$
+```math
+h : K \rightarrow \{0, 1, \dots, n-1\}
+```
 
 - A key can be a number, a string, a record, etc.
-- $|K|$ is usually much larger than $n$, so **different keys can hash to the same location**.
+- $`|K|`$ is usually much larger than $`n`$, so **different keys can hash to the same location**.
 - This is a **collision**, and the colliding keys are called **synonyms**.
 
 **A good hash function should:**
@@ -223,9 +231,11 @@ $$h : K \rightarrow \{0, 1, \dots, n-1\}$$
 
 ## 2.2 Division method (modulo division)
 
-$$h(key) = key \bmod m$$
+```math
+h(key) = key \bmod m
+```
 
-Choose $m$ (the table size) larger than the number of keys. $m$ is usually **prime**, which spreads keys better.
+Choose $`m`$ (the table size) larger than the number of keys. $`m`$ is usually **prime**, which spreads keys better.
 
 **Example (slide):** table size 10, keys 20, 21, 24, 26, 32, 34
 
@@ -233,7 +243,7 @@ Choose $m$ (the table size) larger than the number of keys. $m$ is usually **pri
 |---|---|---|---|---|---|---|---|---|---|---|
 | Keys | 20 | 21 | 32 | | **24, 34 ← collision** | | 26 | | | |
 
-$24 \bmod 10 = 34 \bmod 10 = 4$. This is a **hash collision** (hash clash): two distinct inputs give the same output.
+$`24 \bmod 10 = 34 \bmod 10 = 4`$. This is a **hash collision** (hash clash): two distinct inputs give the same output.
 
 ## 2.3 Collision resolution techniques
 
@@ -262,9 +272,9 @@ Collision Resolution
 - In the textbook version a new item is inserted at the **front** of its list.
 - The table never "fills up"; chains just get longer.
 
-### Example 1 (slide): $h(k) = k \bmod 7$, keys 50, 700, 76, 85, 92, 73, 101
+### Example 1 (slide): $`h(k) = k \bmod 7`$, keys 50, 700, 76, 85, 92, 73, 101
 
-| Key | $h(k)$ | Result | Probes |
+| Key | $`h(k)`$ | Result | Probes |
 |---|---|---|---|
 | 50 | 50 mod 7 = 1 | slot 1 | 1 |
 | 700 | 700 mod 7 = 0 | slot 0 | 1 |
@@ -284,7 +294,7 @@ Collision Resolution
 6 → 76
 ```
 
-### Example 2 (slide): $h(k) = k \bmod 10$, keys 0, 1, 4, 9, 16, 25, 36, 49, 64, 81 (insert at front)
+### Example 2 (slide): $`h(k) = k \bmod 10`$, keys 0, 1, 4, 9, 16, 25, 36, 49, 64, 81 (insert at front)
 
 ```
 0 → 0
@@ -299,9 +309,9 @@ Collision Resolution
 9 → 49 → 9
 ```
 
-### Example 3 (slide): $h(k) = (2k+3) \bmod 10$, $m = 10$, keys 3, 2, 9, 6, 11, 13, 7, 12
+### Example 3 (slide): $`h(k) = (2k+3) \bmod 10`$, $`m = 10`$, keys 3, 2, 9, 6, 11, 13, 7, 12
 
-| Key $k$ | $(2k+3) \bmod 10$ | Index |
+| Key $`k`$ | $`(2k+3) \bmod 10`$ | Index |
 |---|---|---|
 | 3 | (6+3) mod 10 = 9 | 9 |
 | 2 | (4+3) mod 10 = 7 | 7 |
@@ -329,24 +339,24 @@ Collision Resolution
 
 ## 2.5 Open addressing (closed hashing)
 
-When a collision happens, alternative cells are probed **inside the table** until an empty one is found. With $u = h(k)$ and $i = 0, 1, 2, \dots, m-1$:
+When a collision happens, alternative cells are probed **inside the table** until an empty one is found. With $`u = h(k)`$ and $`i = 0, 1, 2, \dots, m-1`$:
 
 | Technique | Probe sequence |
 |---|---|
-| Linear probing | $(u + i) \bmod m$ |
-| Quadratic probing | $(u + i^2) \bmod m$ |
-| Double hashing | $(u + v \cdot i) \bmod m$, where $v = h_2(k)$ |
+| Linear probing | $`(u + i) \bmod m`$ |
+| Quadratic probing | $`(u + i^2) \bmod m`$ |
+| Double hashing | $`(u + v \cdot i) \bmod m`$, where $`v = h_2(k)`$ |
 
 ### 2.5.1 Linear probing
 
-- Insert $k$ at the first free location in $(h(k) + i) \bmod m$ for $i = 0, 1, \dots, m-1$.
+- Insert $`k`$ at the first free location in $`(h(k) + i) \bmod m`$ for $`i = 0, 1, \dots, m-1`$.
 - On a collision, check the **next slot sequentially**, wrapping to the start of the table at the end.
 - Causes **primary clustering**: long runs of filled slots build up.
 - Insert and search get slow once the table is about half full.
 
-#### Example 1 (slide): $h(k) = k \bmod 7$, keys 50, 700, 76, 85, 92, 73, 101
+#### Example 1 (slide): $`h(k) = k \bmod 7`$, keys 50, 700, 76, 85, 92, 73, 101
 
-| Key | $u = h(k)$ | Probe sequence | Final slot | Probes |
+| Key | $`u = h(k)`$ | Probe sequence | Final slot | Probes |
 |---|---|---|---|---|
 | 50 | 1 | 1 | 1 | 1 |
 | 700 | 0 | 0 | 0 | 1 |
@@ -358,9 +368,9 @@ When a collision happens, alternative cells are probed **inside the table** unti
 
 Final table: `0:700 | 1:50 | 2:85 | 3:92 | 4:73 | 5:101 | 6:76`
 
-#### Example 2 (slide): $h(k) = (2k+3) \bmod 10$, $m = 10$, keys 3, 2, 9, 6, 11, 13, 7, 12
+#### Example 2 (slide): $`h(k) = (2k+3) \bmod 10`$, $`m = 10`$, keys 3, 2, 9, 6, 11, 13, 7, 12
 
-| Key | $h(k)$ | Probe sequence | Final index | Probes |
+| Key | $`h(k)`$ | Probe sequence | Final index | Probes |
 |---|---|---|---|---|
 | 3 | 9 | 9 | 9 | 1 |
 | 2 | 7 | 7 | 7 | 1 |
@@ -385,24 +395,26 @@ Final table:
 
 ### 2.5.2 Quadratic probing
 
-- Reduces the clustering of linear probing. The distance between probes grows quadratically ($1^2, 2^2, 3^2, \dots$).
-- In the $i$-th iteration, look at slot $(h(k) + i^2) \bmod m$, always measured from the **original** hash location.
+- Reduces the clustering of linear probing. The distance between probes grows quadratically ($`1^2, 2^2, 3^2, \dots`$).
+- In the $`i`$-th iteration, look at slot $`(h(k) + i^2) \bmod m`$, always measured from the **original** hash location.
 
-$$h'(k, i) = \left(h(k) + i^2\right) \bmod m, \quad i = 0, 1, 2, \dots$$
+```math
+h'(k, i) = \left(h(k) + i^2\right) \bmod m, \quad i = 0, 1, 2, \dots
+```
 
 (The slides also call this the "mid-square method"; see Errata.)
 
-#### Example 1 (slide): $m = 7$, $h(x) = x \bmod 7$, $f(i) = i^2$, insert 22, 30, 50
+#### Example 1 (slide): $`m = 7`$, $`h(x) = x \bmod 7`$, $`f(i) = i^2`$, insert 22, 30, 50
 
 1. Create an empty table of size 7.
-2. $h(22) = 1$ → slot 1 is empty → insert 22. $h(30) = 2$ → slot 2 is empty → insert 30.
-3. $h(50) = 1$ → occupied. Try $1 + 1^2 = 2$ → occupied. Try $1 + 2^2 = 5$ → empty → **insert 50 at slot 5**.
+2. $`h(22) = 1`$ → slot 1 is empty → insert 22. $`h(30) = 2`$ → slot 2 is empty → insert 30.
+3. $`h(50) = 1`$ → occupied. Try $`1 + 1^2 = 2`$ → occupied. Try $`1 + 2^2 = 5`$ → empty → **insert 50 at slot 5**.
 
 Final: `0:– | 1:22 | 2:30 | 3:– | 4:– | 5:50 | 6:–`
 
-#### Example 2 (slide, corrected): $h(k) = k \bmod 7$, keys 50, 700, 76, 85, 92, 73, 101
+#### Example 2 (slide, corrected): $`h(k) = k \bmod 7`$, keys 50, 700, 76, 85, 92, 73, 101
 
-| Key | $u$ | Probe sequence $(u + i^2) \bmod 7$ | Slot | Probes |
+| Key | $`u`$ | Probe sequence $`(u + i^2) \bmod 7`$ | Slot | Probes |
 |---|---|---|---|---|
 | 50 | 1 | 1 | 1 | 1 |
 | 700 | 0 | 0 | 0 | 1 |
@@ -414,11 +426,11 @@ Final: `0:– | 1:22 | 2:30 | 3:– | 4:– | 5:50 | 6:–`
 
 Final: `0:700 | 1:50 | 2:85 | 3:73 | 4:101 | 5:92 | 6:76`
 
-> The slide wrote $73 \bmod 7 = 4$ and left 101 as "??". The correct values are shown above.
+> The slide wrote $`73 \bmod 7 = 4`$ and left 101 as "??". The correct values are shown above.
 
-#### Example 3 (slide): $h(k) = (2k+3) \bmod 10$, $m = 10$, keys 3, 2, 9, 6, 11, 13, 7, 12
+#### Example 3 (slide): $`h(k) = (2k+3) \bmod 10`$, $`m = 10`$, keys 3, 2, 9, 6, 11, 13, 7, 12
 
-| Key | $h(k)$ | Probe sequence | Index | Probes |
+| Key | $`h(k)`$ | Probe sequence | Index | Probes |
 |---|---|---|---|---|
 | 3 | 9 | 9 | 9 | 1 |
 | 2 | 7 | 7 | 7 | 1 |
@@ -435,9 +447,9 @@ Final: `0:700 | 1:50 | 2:85 | 3:73 | 4:101 | 5:92 | 6:76`
 
 **Hash index: 13, 9, ___, 12, ___, 6, 11, 2, 7, 3**
 
-#### Example 4 (slide – additional problem): $h(k) = k \bmod 10$, $h'(k,i) = (h(k) + i^2) \bmod 10$, keys 42, 16, 91, 33, 18, 27, 36, 62
+#### Example 4 (slide – additional problem): $`h(k) = k \bmod 10`$, $`h'(k,i) = (h(k) + i^2) \bmod 10`$, keys 42, 16, 91, 33, 18, 27, 36, 62
 
-| Key | $h(k)$ | Probes | Index |
+| Key | $`h(k)`$ | Probes | Index |
 |---|---|---|---|
 | 42 | 2 | 2 ✓ | 2 |
 | 16 | 6 | 6 ✓ | 6 |
@@ -445,12 +457,12 @@ Final: `0:700 | 1:50 | 2:85 | 3:73 | 4:101 | 5:92 | 6:76`
 | 33 | 3 | 3 ✓ | 3 |
 | 18 | 8 | 8 ✓ | 8 |
 | 27 | 7 | 7 ✓ | 7 |
-| 36 | 6 | 6 ✗ (16); $i=1$: 7 ✗ (27); $i=2$: (6+4)=10 mod 10 = **0 ✓** | 0 |
-| 62 | 2 | 2 ✗; $i$=1→3 ✗; 2→6 ✗; 3→11 mod 10=1 ✗; 4→18 mod 10=8 ✗; 5→27 mod 10=7 ✗; 6→38 mod 10=8 ✗; 7→51 mod 10=1 ✗; 8→66 mod 10=6 ✗; 9→83 mod 10=3 ✗ | **cannot be inserted** |
+| 36 | 6 | 6 ✗ (16); $`i=1`$: 7 ✗ (27); $`i=2`$: (6+4)=10 mod 10 = **0 ✓** | 0 |
+| 62 | 2 | 2 ✗; $`i`$=1→3 ✗; 2→6 ✗; 3→11 mod 10=1 ✗; 4→18 mod 10=8 ✗; 5→27 mod 10=7 ✗; 6→38 mod 10=8 ✗; 7→51 mod 10=1 ✗; 8→66 mod 10=6 ✗; 9→83 mod 10=3 ✗ | **cannot be inserted** |
 
 Final table: `0:36 | 1:91 | 2:42 | 3:33 | 4:empty | 5:empty | 6:16 | 7:27 | 8:18 | 9:empty`
 
-> **Key lesson:** quadratic probing can **fail to find an empty slot even when the table has free cells** (slots 4, 5 and 9 are free here). $i^2 \bmod 10$ only takes the values {0, 1, 4, 5, 6, 9}, so from home slot 2 only slots {2, 3, 6, 7, 8, 1} are reachable. With a **prime** table size and the table less than half full, quadratic probing is guaranteed to find a slot.
+> **Key lesson:** quadratic probing can **fail to find an empty slot even when the table has free cells** (slots 4, 5 and 9 are free here). $`i^2 \bmod 10`$ only takes the values {0, 1, 4, 5, 6, 9}, so from home slot 2 only slots {2, 3, 6, 7, 8, 1} are reachable. With a **prime** table size and the table less than half full, quadratic probing is guaranteed to find a slot.
 
 | Method | Pros | Cons |
 |---|---|---|
@@ -458,42 +470,44 @@ Final table: `0:36 | 1:91 | 2:42 | 3:33 | 4:empty | 5:empty | 6:16 | 7:27 | 8:18
 
 ### 2.5.3 Double hashing
 
-- Uses **two hash functions**: $h_1$ gives the initial position and $h_2$ gives the **step size**.
+- Uses **two hash functions**: $`h_1`$ gives the initial position and $`h_2`$ gives the **step size**.
 
-$$h(k, i) = \left(h_1(k) + i \cdot h_2(k)\right) \bmod m$$
+```math
+h(k, i) = \left(h_1(k) + i \cdot h_2(k)\right) \bmod m
+```
 
 - Keys that share a home slot usually have different step sizes, so there is **no primary or secondary clustering**. It is one of the best probing methods and gives a nearly uniform distribution.
-- $h_2(k)$ must **never be 0** and should be relatively prime to $m$ (e.g. $m$ prime). The slide examples show what goes wrong otherwise.
+- $`h_2(k)`$ must **never be 0** and should be relatively prime to $`m`$ (e.g. $`m`$ prime). The slide examples show what goes wrong otherwise.
 
-#### Example 1 (slide): $m = 7$, $h_1(k) = k \bmod 7$, $h_2(k) = 1 + (k \bmod 5)$, keys 27, 43, 92, 72
+#### Example 1 (slide): $`m = 7`$, $`h_1(k) = k \bmod 7`$, $`h_2(k) = 1 + (k \bmod 5)`$, keys 27, 43, 92, 72
 
 | Step | Key | Computation | Slot |
 |---|---|---|---|
 | 1 | 27 | 27 mod 7 = 6 (empty) | 6 |
 | 2 | 43 | 43 mod 7 = 1 (empty) | 1 |
-| 3 | 92 | 92 mod 7 = 1 → **collision**. $h_2(92) = 1 + (92 \bmod 5) = 1 + 2 = 3$. $h = (1 + 1 \times 3) \bmod 7 = 4$ (empty) | 4 |
+| 3 | 92 | 92 mod 7 = 1 → **collision**. $`h_2(92) = 1 + (92 \bmod 5) = 1 + 2 = 3`$. $`h = (1 + 1 \times 3) \bmod 7 = 4`$ (empty) | 4 |
 | 4 | 72 | 72 mod 7 = 2 (empty) | 2 |
 
 Final: `0:– | 1:43 | 2:72 | 3:– | 4:92 | 5:– | 6:27`
 
-#### Example 2 (slide): keys 3, 2, 1, 6, 11, 13, 7, 12; $h_1(k) = (2k+3) \bmod 10$, $h_2(k) = (3k+1) \bmod 10$, $m = 10$, probe $(u + v \cdot i) \bmod m$
+#### Example 2 (slide): keys 3, 2, 1, 6, 11, 13, 7, 12; $`h_1(k) = (2k+3) \bmod 10`$, $`h_2(k) = (3k+1) \bmod 10`$, $`m = 10`$, probe $`(u + v \cdot i) \bmod m`$
 
-| Key | $u = h_1$ | $v = h_2$ | Probes | Slot |
+| Key | $`u = h_1`$ | $`v = h_2`$ | Probes | Slot |
 |---|---|---|---|---|
 | 3 | 9 | – | 9 | 9 |
 | 2 | 7 | – | 7 | 7 |
 | 1 | 5 | – | 5 | 5 |
 | 6 | 5 ✗ | (18+1) mod 10 = 9 | 5+9·0=5 ✗; (5+9·1) mod 10=4 ✓ | 4 |
 | 11 | 5 ✗ | (33+1) mod 10 = 4 | 5 ✗; 5+4=9 ✗; (5+8) mod 10=3 ✓ | 3 |
-| 13 | 9 ✗ | (39+1) mod 10 = **0** | 9, 9, 9, … forever | **cannot be placed** ($h_2 = 0$) |
+| 13 | 9 ✗ | (39+1) mod 10 = **0** | 9, 9, 9, … forever | **cannot be placed** ($`h_2 = 0`$) |
 | 7 | 7 ✗ | (21+1) mod 10 = 2 | 7 ✗; 9 ✗; (7+4) mod 10=1 ✓ | 1 |
 | 12 | 7 ✗ | (36+1) mod 10 = 7 | 7 ✗; (7+7) mod 10=4 ✗; (7+14) mod 10=1 ✗; (7+21) mod 10=8 ✓ | 8 |
 
 Final: `0:– | 1:7 | 2:– | 3:11 | 4:6 | 5:1 | 6:– | 7:2 | 8:12 | 9:3` (13 not inserted)
 
-#### Example 3 (slide): keys {3, 2, 9, 6, 11, 13, 7, 12}, $h_1(k) = (2k+3) \bmod 10$, $h_2(k) = (3k+1) \bmod 10$, $m = 10$
+#### Example 3 (slide): keys {3, 2, 9, 6, 11, 13, 7, 12}, $`h_1(k) = (2k+3) \bmod 10`$, $`h_2(k) = (3k+1) \bmod 10`$, $`m = 10`$
 
-| Key | $h_1$ | $h_2$ | Probe sequence $(h_1 + i \cdot h_2) \bmod 10$ | Slot | Probes |
+| Key | $`h_1`$ | $`h_2`$ | Probe sequence $`(h_1 + i \cdot h_2) \bmod 10`$ | Slot | Probes |
 |---|---|---|---|---|---|
 | 3 | 9 | – | 9 | 9 | 1 |
 | 2 | 7 | – | 7 | 7 | 1 |
@@ -508,11 +522,11 @@ Final: `0:– | 1:7 | 2:– | 3:11 | 4:6 | 5:1 | 6:– | 7:2 | 8:12 | 9:3` (13 n
 |---|---|---|---|---|---|---|---|---|---|---|
 | Key | – | 9 | – | 11 | 12 | 6 | – | 2 | – | 3 |
 
-> Why 7 fails: $\gcd(h_2(7), m) = \gcd(2, 10) = 2$, so the probe sequence visits only $m/2 = 5$ slots. This is why $h_2(k)$ should be relatively prime to $m$.
+> Why 7 fails: $`\gcd(h_2(7), m) = \gcd(2, 10) = 2`$, so the probe sequence visits only $`m/2 = 5`$ slots. This is why $`h_2(k)`$ should be relatively prime to $`m`$.
 
-#### Example 4 (slide – additional problem): $m = 11$, $h_1(k) = k \bmod 11$, $h_2(k) = 8 - (k \bmod 8)$, keys 20, 34, 45, 70, 56
+#### Example 4 (slide – additional problem): $`m = 11`$, $`h_1(k) = k \bmod 11`$, $`h_2(k) = 8 - (k \bmod 8)`$, keys 20, 34, 45, 70, 56
 
-| Key | $h_1$ | $h_2$ | Probe sequence $(h_1 + i \cdot h_2) \bmod 11$ | Index |
+| Key | $`h_1`$ | $`h_2`$ | Probe sequence $`(h_1 + i \cdot h_2) \bmod 11`$ | Index |
 |---|---|---|---|---|
 | 20 | 9 | – | 9 ✓ | **9** |
 | 34 | 1 | – | 1 ✓ | **1** |
@@ -528,16 +542,16 @@ Final: `0:– | 1:7 | 2:– | 3:11 | 4:6 | 5:1 | 6:– | 7:2 | 8:12 | 9:3` (13 n
 
 | | Linear | Quadratic | Double |
 |---|---|---|---|
-| Probe | $(u+i) \bmod m$ | $(u+i^2) \bmod m$ | $(u+i\,v) \bmod m$ |
+| Probe | $`(u+i) \bmod m`$ | $`(u+i^2) \bmod m`$ | $`(u+i\,v) \bmod m`$ |
 | Primary clustering | Yes | No | No |
 | Secondary clustering | Yes | Yes | No |
-| Always finds a free slot? | Yes (if any exists) | Not guaranteed | Only if $\gcd(v, m) = 1$ |
+| Always finds a free slot? | Yes (if any exists) | Not guaranteed | Only if $`\gcd(v, m) = 1`$ |
 
 ---
 
 ## 2.6 Deficiencies of static hashing
 
-In static hashing, $h$ maps keys to a **fixed set of $B$ bucket addresses**, but databases grow and shrink over time.
+In static hashing, $`h`$ maps keys to a **fixed set of $`B`$ bucket addresses**, but databases grow and shrink over time.
 
 - If there are **too few buckets** and the file grows → too many overflows → performance degrades.
 - If space is allocated for anticipated growth → a lot of **space is wasted** initially (buckets are underfull).
@@ -572,11 +586,11 @@ A dynamic hashing technique that uses a **directory of pointers to buckets**. It
 
 | Term | Meaning |
 |---|---|
-| **Directory** | Array of pointers to buckets. Number of entries $= 2^{GD}$ |
+| **Directory** | Array of pointers to buckets. Number of entries $`= 2^{GD}`$ |
 | **Bucket** | Stores the actual keys/records. **Several directory entries may point to the same bucket** |
 | **Global depth (GD)** | Number of hash bits used to index the directory (kept in the file header) |
 | **Local depth (LD)** | Number of bits actually used to distinguish the keys of a particular bucket |
-| Rule | $LD \le GD$ always. A bucket is pointed to by $2^{GD - LD}$ directory entries |
+| Rule | $`LD \le GD`$ always. A bucket is pointed to by $`2^{GD - LD}`$ directory entries |
 
 The hash value is treated as a binary number, and its **last GD bits (LSBs)** give the directory index. (Some examples use the **first GD bits (MSBs)** instead; both work if used consistently.)
 
@@ -595,12 +609,12 @@ The hash value is treated as a binary number, and its **last GD bits (LSBs)** gi
 
 | Case | Condition | Action |
 |---|---|---|
-| **Case 1** | $LD = GD$ | **Double the directory** ($GD \leftarrow GD + 1$), **split** the bucket, $LD \leftarrow LD + 1$, rehash the bucket's keys |
-| **Case 2** | $LD < GD$ | **Split the bucket only** (no directory doubling), $LD \leftarrow LD + 1$, re-point half of its directory entries to the new bucket, rehash its keys |
+| **Case 1** | $`LD = GD`$ | **Double the directory** ($`GD \leftarrow GD + 1`$), **split** the bucket, $`LD \leftarrow LD + 1`$, rehash the bucket's keys |
+| **Case 2** | $`LD < GD`$ | **Split the bucket only** (no directory doubling), $`LD \leftarrow LD + 1`$, re-point half of its directory entries to the new bucket, rehash its keys |
 
 > **Rule to remember:** *If a bucket whose local depth equals the global depth is split, the directory must be doubled.*
 
-**Search:** apply $h$, take the last GD bits, follow the directory pointer, then search that one bucket. That is **1 directory lookup + 1 bucket access**.
+**Search:** apply $`h`$, take the last GD bits, follow the directory pointer, then search that one bucket. That is **1 directory lookup + 1 bucket access**.
 
 ---
 
@@ -628,7 +642,7 @@ GD=1   0 → [16, 4, 6]  LD=1   (full)
        1 → [ ]         LD=1
 ```
 
-**Insert 22** (1011**0**) → directory 0 → bucket full → **overflow**. $LD = GD = 1$ → **Case 1**: split the bucket and double the directory. GD = 2, and 16, 4, 6, 22 are rehashed on 2 LSBs: 16 → **00**, 4 → **00**, 6 → **10**, 22 → **10**.
+**Insert 22** (1011**0**) → directory 0 → bucket full → **overflow**. $`LD = GD = 1`$ → **Case 1**: split the bucket and double the directory. GD = 2, and 16, 4, 6, 22 are rehashed on 2 LSBs: 16 → **00**, 4 → **00**, 6 → **10**, 22 → **10**.
 
 ```
 GD=2   00 → [16, 4]    LD=2
@@ -653,7 +667,7 @@ GD=2   00 → [16, 4, 24]   LD=2
        01, 11 → [31, 7, 9] LD=1
 ```
 
-**Insert 20** (101**00**) → 00 → full → overflow. $LD = GD = 2$ → **Case 1**: double the directory (GD = 3) and split. Rehash 16, 4, 24, 20 on 3 LSBs: 16 → **000**, 24 → **000**, 4 → **100**, 20 → **100**.
+**Insert 20** (101**00**) → 00 → full → overflow. $`LD = GD = 2`$ → **Case 1**: double the directory (GD = 3) and split. Rehash 16, 4, 24, 20 on 3 LSBs: 16 → **000**, 24 → **000**, 4 → **100**, 20 → **100**.
 
 ```
 GD=3   000 → [16, 24]            LD=3  ┐ split buckets
@@ -662,7 +676,7 @@ GD=3   000 → [16, 24]            LD=3  ┐ split buckets
        001, 011, 101, 111 → [31, 7, 9]  LD=1
 ```
 
-**Insert 26** (11**010**) → 010 → bucket [6, 22, 10] is full → overflow. $LD = 2 < GD = 3$ → **Case 2**: split only, no doubling. Rehash on 3 bits: 10 = 01**010** → 010, 26 → 010, 6 = 00**110** → 110, 22 = 10**110** → 110.
+**Insert 26** (11**010**) → 010 → bucket [6, 22, 10] is full → overflow. $`LD = 2 < GD = 3`$ → **Case 2**: split only, no doubling. Rehash on 3 bits: 10 = 01**010** → 010, 26 → 010, 6 = 00**110** → 110, 22 = 10**110** → 110.
 
 **Final state:**
 
@@ -690,7 +704,7 @@ GD=2   00 → A [4*, 12*, 32*, 16*]   LD=2
 - **Search 5\*:** 5 = 1**01** → last 2 bits 01 → bucket B → found.
 - **Insert 13\*:** 13 = 11**01** → 01 → B has room → B = [1*, 5*, 21*, 13*].
 - **Insert 20\*:** 20 = 101**00** → 00 → A is **full** → split and redistribute. A: 32 = 100**000**, 16 = 10**000** → keep A (000). A2 ("split image" of A): 4 = **100**, 12 = 1**100**, 20 = 10**100** → A2 (100).
-  - *Is this enough?* No. With GD = 2 the directory cannot tell A from A2, and $LD(A) = GD$, so we **double the directory** and set GD = 3. "The first two bits say which pair of buckets; the third bit distinguishes between them."
+  - *Is this enough?* No. With GD = 2 the directory cannot tell A from A2, and $`LD(A) = GD`$, so we **double the directory** and set GD = 3. "The first two bits say which pair of buckets; the third bit distinguishes between them."
 
 ```
 GD=3   000 → A  [32*, 16*]          LD=3
@@ -700,7 +714,7 @@ GD=3   000 → A  [32*, 16*]          LD=3
        011, 111 → D [15*, 7*, 19*]  LD=2
 ```
 
-- **Insert 9\*:** 9 = 1**001** → 001 → B is **full**. $LD(B) = 2 < GD = 3$ → split B **without doubling the directory**. Rehash on 3 bits: 1 = **001**, 9 = 1**001** → B (001); 5 = **101**, 21 = 10**101**, 13 = 1**101** → B2 (101).
+- **Insert 9\*:** 9 = 1**001** → 001 → B is **full**. $`LD(B) = 2 < GD = 3`$ → split B **without doubling the directory**. Rehash on 3 bits: 1 = **001**, 9 = 1**001** → B (001); 5 = **101**, 21 = 10**101**, 13 = 1**101** → B2 (101).
 
 ```
 GD=3   000 → A  [32*, 16*]          LD=3
@@ -711,7 +725,7 @@ GD=3   000 → A  [32*, 16*]          LD=3
        011, 111 → D [15*, 7*, 19*]  LD=2
 ```
 
-*When NOT to double the directory?* When the overflowing bucket has $LD < GD$.
+*When NOT to double the directory?* When the overflowing bucket has $`LD < GD`$.
 
 ---
 
@@ -721,14 +735,14 @@ Binary: 8 = 01000, 4 = 00100, 12 = 01100, 16 = 10000, 20 = 10100. All end in **0
 
 **Insert**
 1. 8, 4, 12 → bucket 00 = {8, 4, 12} (full).
-2. 16 → 00 → overflow. $LD = GD = 2$ → double the directory → GD = 3. Redistribute on 3 bits: 8 = **000**, 16 = **000**, 4 = **100**, 12 = **100**.
+2. 16 → 00 → overflow. $`LD = GD = 2`$ → double the directory → GD = 3. Redistribute on 3 bits: 8 = **000**, 16 = **000**, 4 = **100**, 12 = **100**.
    - 000 = {8, 16}, 100 = {4, 12}
 3. 20 = 10**100** → 100 → {4, 12, 20}. No overflow (capacity 3).
 
 **Delete**
 1. Delete 12 → 100 = {4, 20}.
 2. Delete 20 → 100 = {4}.
-3. Check merge with the **buddy** bucket (flip the top local bit: 100 ↔ 000). 000 has 2 keys, total $1 + 2 = 3 \le 3$ → **merge**, and LD drops from 3 to 2.
+3. Check merge with the **buddy** bucket (flip the top local bit: 100 ↔ 000). 000 has 2 keys, total $`1 + 2 = 3 \le 3`$ → **merge**, and LD drops from 3 to 2.
 4. No bucket now has LD = 3 → **directory shrinks**, GD drops from 3 to 2.
 
 **Final:** GD = 2, directory 00 → {4, 8, 16}.
@@ -739,22 +753,22 @@ Binary: 1 = 00001, 5 = 00101, 9 = 01001, 13 = 01101, 17 = 10001. All end in **01
 
 **Insert**
 1. 1, 5 → bucket 01 = {1, 5} (full).
-2. 9 → overflow. $LD = GD = 2$ → double the directory, GD = 3, LD 2 → 3. Redistribute on 3 bits: 1 = **001**, 9 = 1**001** → 001; 5 = **101** → 101.
+2. 9 → overflow. $`LD = GD = 2`$ → double the directory, GD = 3, LD 2 → 3. Redistribute on 3 bits: 1 = **001**, 9 = 1**001** → 001; 5 = **101** → 101.
    - 001 = {1, 9}, 101 = {5}
 3. 13 = 1**101** → 101 → {5, 13}.
-4. 17 = 10**001** → 001 → {1, 9, 17} → overflow. $LD = GD = 3$ → double the directory, GD = 4. Redistribute on 4 bits: 1 = **0001**, 17 = **0001** → 0001; 9 = **1001** → 1001.
+4. 17 = 10**001** → 001 → {1, 9, 17} → overflow. $`LD = GD = 3`$ → double the directory, GD = 4. Redistribute on 4 bits: 1 = **0001**, 17 = **0001** → 0001; 9 = **1001** → 1001.
    - 0001 = {1, 17} (LD 4), 1001 = {9} (LD 4), and {5, 13} has LD 3 (pointed to by 0101 and 1101). Other entries are empty.
 
 **Delete 9**
-- Bucket 1001 becomes empty. Its buddy (flip the top local bit) is 0001 = {1, 17}. Total $0 + 2 = 2 \le 2$ → **merge** → {1, 17}, LD 4 → 3. Entries 0001 and 1001 now point to the same bucket.
+- Bucket 1001 becomes empty. Its buddy (flip the top local bit) is 0001 = {1, 17}. Total $`0 + 2 = 2 \le 2`$ → **merge** → {1, 17}, LD 4 → 3. Entries 0001 and 1001 now point to the same bucket.
 - Does any bucket have LD = 4? No → **shrink the directory**: GD 4 → 3, directory size 8.
 
 **Delete 17**
-- {1, 17} → {1}. Its buddy is 101 = {5, 13}. Total $1 + 2 = 3 > 2$ → **cannot merge**.
+- {1, 17} → {1}. Its buddy is 101 = {5, 13}. Total $`1 + 2 = 3 > 2`$ → **cannot merge**.
 - State: GD = 3, 001 → {1}, 101 → {5, 13}.
 
 **Delete 13**
-- {5, 13} → {5}. Buddy {1}: total $1 + 1 = 2 \le 2$ → **merge** → {1, 5}, LD 3 → 2.
+- {5, 13} → {5}. Buddy {1}: total $`1 + 1 = 2 \le 2`$ → **merge** → {1, 5}, LD 3 → 2.
 - All buckets now have LD ≤ 2 → shrink the directory: GD 3 → 2, directory size 4.
 
 **Final answer:** GD = 2, directory 01 → {1, 5}; the other entries are empty.
@@ -776,7 +790,7 @@ Start with GD = 1, two buckets (LD 1).
           1 → [17, 22, 24]   (full)
    ```
 3. **Insert 11** (**0**1011) → MSB 0 → dir 0 → [5, 6, 11].
-4. **Insert 30** (**1**1110) → dir 1 → full → overflow. $LD = GD = 1$ → split and double, GD = 2. Rehash on 2 MSBs: 17 (**10**001) → 10, 22 (**10**110) → 10, 24 (**11**000) → 11, 30 (**11**110) → 11.
+4. **Insert 30** (**1**1110) → dir 1 → full → overflow. $`LD = GD = 1`$ → split and double, GD = 2. Rehash on 2 MSBs: 17 (**10**001) → 10, 22 (**10**110) → 10, 24 (**11**000) → 11, 30 (**11**110) → 11.
    ```
    GD=2   00, 01 → [5, 6, 11]    LD=1
           10     → [17, 22]      LD=2
@@ -785,7 +799,7 @@ Start with GD = 1, two buckets (LD 1).
 
 The slides stop here. **Completing the example:**
 
-5. **Insert 7** (**00**111) → 00 → [5, 6, 11] full. $LD = 1 < GD = 2$ → **split only**. Rehash on 2 MSBs: 5 (00), 6 (00), 7 (00) → 00; 11 (**01**011) → 01.
+5. **Insert 7** (**00**111) → 00 → [5, 6, 11] full. $`LD = 1 < GD = 2`$ → **split only**. Rehash on 2 MSBs: 5 (00), 6 (00), 7 (00) → 00; 11 (**01**011) → 01.
    - 00 → [5, 6, 7] (LD 2), 01 → [11] (LD 2)
 6. **Insert 10** (**01**010) → 01 → [11, 10].
 7. **Insert 21** (**10**101) → 10 → [17, 22, 21].
@@ -817,7 +831,7 @@ GD=2   00 → [5, 6, 7]      LD=2
 - Static hashing can build **long overflow chains**.
 - Extendible hashing avoids overflow pages by **splitting a full bucket** when a new entry is added. Duplicates may still need overflow pages.
 - The directory tracks the buckets and doubles periodically. It can get large with skewed data, which costs an extra I/O if it doesn't fit in memory.
-- **(Supplementary) Linear hashing** needs no directory. Buckets are split in round-robin order (bucket `next`, then `next+1`, …) whenever any overflow occurs, using the pair $h_i(k) = k \bmod 2^i M$ and $h_{i+1}(k) = k \bmod 2^{i+1} M$.
+- **(Supplementary) Linear hashing** needs no directory. Buckets are split in round-robin order (bucket `next`, then `next+1`, …) whenever any overflow occurs, using the pair $`h_i(k) = k \bmod 2^i M`$ and $`h_{i+1}(k) = k \bmod 2^{i+1} M`$.
 
 ---
 
@@ -841,7 +855,7 @@ GD=2   00 → [5, 6, 7]      LD=2
 | Without an index (ordered file) | With an index |
 |---|---|
 | Open the middle page and move left/right, i.e. binary search | Look up the index page and jump straight to the chapter |
-| ≈ $\log_2 N$ steps, e.g. **10 steps for 1000 blocks** | Much faster than binary search |
+| ≈ $`\log_2 N`$ steps, e.g. **10 steps for 1000 blocks** | Much faster than binary search |
 
 | Book index page | | Database index file | |
 |---|---|---|---|
@@ -994,7 +1008,7 @@ CREATE TABLE Student ( StudentID INT PRIMARY KEY, Name VARCHAR(50), Age INT );
 
 **Textbook example (Elmasri Fig. 17.1)**, where the ordering key is `Name`:
 
-| Index entry $\langle K(i), P(i) \rangle$ | Data block |
+| Index entry $`\langle K(i), P(i) \rangle`$ | Data block |
 |---|---|
 | Aaron, Ed | Aaron, Ed; Abbot, Diane; …; Acosta, Marc |
 | Adams, John | Adams, John; Adams, Robin; …; Akers, Jan |
@@ -1046,10 +1060,10 @@ Slide diagrams:
 ### Numerical example – dense index
 
 - Data file: **1,000,000 tuples**, 10 per 4 KB (4096-byte) block.
-- Data blocks $= 1{,}000{,}000 / 10 = 100{,}000$ blocks; data file size $= 100{,}000 \times 4\text{ KB} = 400\text{ MB}$.
+- Data blocks $`= 1{,}000{,}000 / 10 = 100{,}000`$ blocks; data file size $`= 100{,}000 \times 4\text{ KB} = 400\text{ MB}`$.
 - Index entry = key 30 B + pointer 8 B = **38 B**.
-- Entries per index block $= \lfloor 4096 / 38 \rfloor = 107 \approx$ **100** (the slides round to 100).
-- Index blocks $= 1{,}000{,}000 / 100 = 10{,}000$ blocks → **40 MB** (might fit in main memory).
+- Entries per index block $`= \lfloor 4096 / 38 \rfloor = 107 \approx`$ **100** (the slides round to 100).
+- Index blocks $`= 1{,}000{,}000 / 100 = 10{,}000`$ blocks → **40 MB** (might fit in main memory).
 
 ## 3.7 Sparse index
 
@@ -1064,7 +1078,7 @@ A **sparse index** has entries for **only some** search-key values, typically **
 | 104 → | Block 2 (104, 105, 106) |
 | 107 → | Block 3 (107, …) |
 
-**To locate a record with key $K$:**
+**To locate a record with key $`K`$:**
 1. Find the index entry with the **largest search-key value ≤ K**.
 2. Follow its pointer and **search the file sequentially** from there.
 
@@ -1075,14 +1089,16 @@ Slide numeric diagram: sparse entries 10 → [10, 20], 30 → [30, 40], 70 → [
 ### Numerical example – sparse index (same file as above)
 
 - One (key, pointer) entry for the **first record of every block** → 100,000 entries.
-- $100{,}000 \times 38\text{ B} \approx 3.8\text{ MB}$ → $100{,}000 / 100 = 1{,}000$ blocks ≈ **4 MB**.
+- $`100{,}000 \times 38\text{ B} \approx 3.8\text{ MB}`$ → $`100{,}000 / 100 = 1{,}000`$ blocks ≈ **4 MB**.
 - If the index fits in main memory, finding a record takes **1 disk I/O**.
 
 ### Cost of lookup
 
-Binary search on the index needs about $\lceil \log_2(\text{number of index blocks}) \rceil$ I/Os:
+Binary search on the index needs about $`\lceil \log_2(\text{number of index blocks}) \rceil`$ I/Os:
 
-$$\text{Dense: } \lceil \log_2 10{,}000 \rceil = 14 \text{ I/Os} \qquad \text{Sparse: } \lceil \log_2 1{,}000 \rceil = 10 \text{ I/Os} \quad (+1 \text{ for the data block})$$
+```math
+\text{Dense: } \lceil \log_2 10{,}000 \rceil = 14 \text{ I/Os} \qquad \text{Sparse: } \lceil \log_2 1{,}000 \rceil = 10 \text{ I/Os} \quad (+1 \text{ for the data block})
+```
 
 Every binary search starts at the **middle** block, then the 1/4 and 3/4 points, then 1/8, 3/8, 5/8, 7/8, and so on. **Keeping these frequently used index blocks in main memory reduces I/Os significantly.**
 
@@ -1092,8 +1108,8 @@ Every binary search starts at the **middle** block, then the 1/4 and 3/4 points,
 |---|---|---|
 | Entries | Every search-key value/record | Only selected keys/blocks |
 | Space | More | Less |
-| Search | Find $K$ directly and follow the pointer | Find the **largest key ≤ K**, follow the pointer to the block, then search the block |
-| Existence test | Can answer "is there a record with key $K$?" **from the index alone** | **Cannot**; must read the data block |
+| Search | Find $`K`$ directly and follow the pointer | Find the **largest key ≤ K**, follow the pointer to the block, then search the block |
+| Existence test | Can answer "is there a record with key $`K`$?" **from the index alone** | **Cannot**; must read the data block |
 | Requirement | Works for any file | File must be **sorted** on the search key |
 
 **Memory trick:** DENSE = EVERY; SPARSE = SOME.
@@ -1197,11 +1213,13 @@ CREATE INDEX idx_dept ON Student(Department);
 - **First (base) level** = the original index file.
 - **Second level** = a primary index to the first level.
 - **Third level** = a primary index to the second level, and so on until the top level fits in **one block**.
-- Each level cuts the remaining search space by a factor of the **fan-out** $fo$ (index entries per block), not by 2 as in binary search.
+- Each level cuts the remaining search space by a factor of the **fan-out** $`fo`$ (index entries per block), not by 2 as in binary search.
 
-$$\text{Number of levels } t = \left\lceil \log_{fo}(r_1) \right\rceil, \qquad \text{I/Os for a search} = t + 1$$
+```math
+\text{Number of levels } t = \left\lceil \log_{fo}(r_1) \right\rceil, \qquad \text{I/Os for a search} = t + 1
+```
 
-where $r_1$ is the number of first-level entries.
+where $`r_1`$ is the number of first-level entries.
 
 **Slide diagram – two-level primary index resembling ISAM** (Elmasri Fig. 17.6):
 
@@ -1215,7 +1233,7 @@ Data blocks:        (2,5)(8,12)(15,21)(24,29)(35,36)(39,41)(44,46)(51,52)(55,58)
 
 Another slide shows an Outer index (in RAM) → Inner index blocks → Data blocks. For example, primary-level entries 100, 200, 300 point to secondary-level blocks {100, 110, 120}, {200, 210, 220} and {300, 310, 320}, which point to the data blocks.
 
-**Worked example (Supplementary), using the dense index from §3.6:** the first level has 10,000 blocks. With $fo = 100$, the second level has $\lceil 10{,}000/100 \rceil = 100$ blocks and the third level has 1 block. So $t = 3$, and a search costs **3 index I/Os + 1 data I/O = 4**, compared with 14 + 1 for binary search.
+**Worked example (Supplementary), using the dense index from §3.6:** the first level has 10,000 blocks. With $`fo = 100`$, the second level has $`\lceil 10{,}000/100 \rceil = 100`$ blocks and the third level has 1 block. So $`t = 3`$, and a search costs **3 index I/Os + 1 data I/O = 4**, compared with 14 + 1 for binary search.
 
 **Dynamic multilevel indexes:** a static multilevel index (ISAM) degrades with insertions and deletions, because overflow blocks build up. **B-trees and B+-trees** are multilevel indexes that **stay balanced automatically** and leave space in each node for inserts. That is the next section.
 
@@ -1288,12 +1306,14 @@ Level 2 (leaf)  [1 3]→[5]→[6 7]→[8]→[9 12]   ← key values, data pointe
 
 ### B+ tree node structure
 
-$$\boxed{P_1 \mid K_1 \mid P_2 \mid K_2 \mid \cdots \mid P_{n-1} \mid K_{n-1} \mid P_n}$$
+```math
+\boxed{P_1 \mid K_1 \mid P_2 \mid K_2 \mid \cdots \mid P_{n-1} \mid K_{n-1} \mid P_n}
+```
 
-- $K_i$ are search-key values, with $K_1 < K_2 < \dots < K_{n-1}$ (assume no duplicates).
-- In a **non-leaf node**, $P_i$ points to the child subtree containing keys $K_{i-1} \le x < K_i$.
-- In a **leaf node**, $P_i$ ($i = 1 \dots n-1$) points to the record with key $K_i$, and $P_n$ **points to the next leaf** in key order.
-- If $L_i$ and $L_j$ are leaves with $i < j$, every key in $L_i$ is ≤ every key in $L_j$.
+- $`K_i`$ are search-key values, with $`K_1 < K_2 < \dots < K_{n-1}`$ (assume no duplicates).
+- In a **non-leaf node**, $`P_i`$ points to the child subtree containing keys $`K_{i-1} \le x < K_i`$.
+- In a **leaf node**, $`P_i`$ ($`i = 1 \dots n-1`$) points to the record with key $`K_i`$, and $`P_n`$ **points to the next leaf** in key order.
+- If $`L_i`$ and $`L_j`$ are leaves with $`i < j`$, every key in $`L_i`$ is ≤ every key in $`L_j`$.
 
 ### Example B+ tree on `instructor.name` (slide)
 
@@ -1307,58 +1327,60 @@ $$\boxed{P_1 \mid K_1 \mid P_2 \mid K_2 \mid \cdots \mid P_{n-1} \mid K_{n-1} \m
 
 Each leaf key points to its instructor record; e.g. Brandt → (83821, Comp. Sci., 92000).
 
-B-tree index slide example ($n = 3$, handwritten): root [100]; children [30] and [120 150 180]; leaves [3 5 11] → [30 35] → [100 101 110] → [120 130] → [150 157 179] → [180 200].
+B-tree index slide example ($`n = 3`$, handwritten): root [100]; children [30] and [120 150 180]; leaves [3 5 11] → [30 35] → [100 101 110] → [120 130] → [150 157 179] → [180 200].
 
 ## 4.3 Order and occupancy rules
 
-**Order $m$** = the maximum number of **child pointers** in a node.
+**Order $`m`$** = the maximum number of **child pointers** in a node.
 
 The slides give this table:
 
 | Property | Root node | Internal node (non-root) | Leaf node |
 |---|---|---|---|
-| Maximum children | $m$ | $m$ | – |
-| Minimum children | 2 (if internal) or 1 (if leaf) | $\lceil m/2 \rceil$ | – |
-| Maximum keys | $m-1$ | $m-1$ | $m$ (see note) |
-| Minimum keys | 1 (if internal) or 0 (if leaf) | $\lceil m/2 \rceil - 1$ | $\lceil m/2 \rceil$ (see note) |
+| Maximum children | $`m`$ | $`m`$ | – |
+| Minimum children | 2 (if internal) or 1 (if leaf) | $`\lceil m/2 \rceil`$ | – |
+| Maximum keys | $`m-1`$ | $`m-1`$ | $`m`$ (see note) |
+| Minimum keys | 1 (if internal) or 0 (if leaf) | $`\lceil m/2 \rceil - 1`$ | $`\lceil m/2 \rceil`$ (see note) |
 
 > ⚠️ **Convention used in all the worked examples** (and in the construction problem slide):
 >
-> $$\text{max keys in any node} = m-1, \quad \text{min children (internal)} = \lceil m/2 \rceil, \quad \text{min keys (internal)} = \lceil m/2 \rceil - 1, \quad \text{min keys (leaf)} = \left\lceil \frac{m-1}{2} \right\rceil$$
+> ```math
+> \text{max keys in any node} = m-1, \quad \text{min children (internal)} = \lceil m/2 \rceil, \quad \text{min keys (internal)} = \lceil m/2 \rceil - 1, \quad \text{min keys (leaf)} = \left\lceil \frac{m-1}{2} \right\rceil
+> ```
 >
-> The order-3 example overflows a leaf at 3 keys, and the order-4 examples overflow a leaf at 4 keys. So in practice **leaf max = m − 1**, not m. For $m = 3$: leaf holds 1–2 keys. For $m = 4$: leaf holds 2–3 keys. **Use this convention in exams unless told otherwise, and state it.**
+> The order-3 example overflows a leaf at 3 keys, and the order-4 examples overflow a leaf at 4 keys. So in practice **leaf max = m − 1**, not m. For $`m = 3`$: leaf holds 1–2 keys. For $`m = 4`$: leaf holds 2–3 keys. **Use this convention in exams unless told otherwise, and state it.**
 
-| | $m = 3$ | $m = 4$ |
+| | $`m = 3`$ | $`m = 4`$ |
 |---|---|---|
 | Max children | 3 | 4 |
 | Max keys (every node) | 2 | 3 |
-| Min children (non-root internal) | $\lceil 3/2 \rceil = 2$ | 2 |
+| Min children (non-root internal) | $`\lceil 3/2 \rceil = 2`$ | 2 |
 | Min keys (non-root internal) | 1 | 1 |
-| Min keys (leaf) | $\lceil 2/2 \rceil = 1$ | $\lceil 3/2 \rceil = 2$ |
+| Min keys (leaf) | $`\lceil 2/2 \rceil = 1`$ | $`\lceil 3/2 \rceil = 2`$ |
 | Root | at least 2 children (unless it is a leaf) | same |
 
 ## 4.4 Search
 
 1. Start at the root.
-2. In each internal node, find the smallest $K_i$ with $x < K_i$ and follow $P_i$. If $x \ge$ every key, follow the last pointer.
-3. At the leaf, look for $x$. **Range query $[a, b]$:** find the leaf for $a$, then follow the leaf links until a key exceeds $b$.
+2. In each internal node, find the smallest $`K_i`$ with $`x < K_i`$ and follow $`P_i`$. If $`x \ge`$ every key, follow the last pointer.
+3. At the leaf, look for $`x`$. **Range query $`[a, b]`$:** find the leaf for $`a`$, then follow the leaf links until a key exceeds $`b`$.
 
-Cost ≈ **height of the tree** (a few I/Os even for millions of keys), because height $\approx \lceil \log_{\lceil m/2 \rceil} N \rceil$.
+Cost ≈ **height of the tree** (a few I/Os even for millions of keys), because height $`\approx \lceil \log_{\lceil m/2 \rceil} N \rceil`$.
 
 ## 4.5 Insertion
 
 **Algorithm:**
-1. Search for the leaf $N$ where the new key $D$ belongs.
-2. Insert $D$ into $N$ in sorted order.
-   - **Case I:** $N$ has space → done.
-   - **Case II:** $N$ is full → **overflow**. Either transfer a key to a sibling that has room, **or split**:
-     - **Leaf split:** divide the $m$ keys into two leaves (left gets $\lfloor m/2 \rfloor$, right gets the rest). **Copy** the first key of the right leaf **up** into the parent; it stays in the leaf too.
-     - **Internal split:** divide the $m$ keys. The middle key (position $\lfloor m/2 \rfloor + 1$) **moves up** (push up, not kept in either half).
+1. Search for the leaf $`N`$ where the new key $`D`$ belongs.
+2. Insert $`D`$ into $`N`$ in sorted order.
+   - **Case I:** $`N`$ has space → done.
+   - **Case II:** $`N`$ is full → **overflow**. Either transfer a key to a sibling that has room, **or split**:
+     - **Leaf split:** divide the $`m`$ keys into two leaves (left gets $`\lfloor m/2 \rfloor`$, right gets the rest). **Copy** the first key of the right leaf **up** into the parent; it stays in the leaf too.
+     - **Internal split:** divide the $`m`$ keys. The middle key (position $`\lfloor m/2 \rfloor + 1`$) **moves up** (push up, not kept in either half).
      - If the parent overflows, repeat. If the root splits, a new root is created and **the height grows by 1**.
 
 > **Leaf split → copy up. Internal split → push up.** This is the most-asked detail.
 
-### Example 1 (slides): order $m = 3$, insert 5, 15, 25, 35, 45
+### Example 1 (slides): order $`m = 3`$, insert 5, 15, 25, 35, 45
 
 Max keys 2, min internal keys 1, leaf capacity 2.
 
@@ -1382,7 +1404,7 @@ Insert 45:  leaf [25 35 45] overflow → [25] | [35 45], copy 35 up
              [5] → [15] → [25] → [35 45]
 ```
 
-### Example 2 (slides): order $m = 4$, insert 10, 4, 90, 8, 1
+### Example 2 (slides): order $`m = 4`$, insert 10, 4, 90, 8, 1
 
 Max keys 3.
 
@@ -1401,7 +1423,7 @@ Insert 1:   1 < 10 → left leaf → [1 4 8]  (fits, no split)
           [1 4 8] →  [10 90]
 ```
 
-### Example 3 (slide problem): order $m = 4$, insert 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
+### Example 3 (slide problem): order $`m = 4`$, insert 2, 4, 6, 8, 10, 12, 14, 16, 18, 20
 
 Max keys 3, min internal keys 1, min leaf keys 2. **Promote the first key of the right node.**
 
@@ -1492,14 +1514,14 @@ Order 4 final:
 ## 4.6 Deletion
 
 **Algorithm:**
-1. Find the leaf $N$ containing key $K$ and delete $K$ from it.
-2. If $N$ still has **at least the minimum** number of keys → done. Update a parent separator if needed.
+1. Find the leaf $`N`$ containing key $`K`$ and delete $`K`$ from it.
+2. If $`N`$ still has **at least the minimum** number of keys → done. Update a parent separator if needed.
 3. Otherwise **underflow**:
    - **Borrow (redistribute)** a key from an immediate sibling that has more than the minimum, and update the separator key in the parent, **or**
-   - **Merge** $N$ with a sibling and remove the separator from the parent. This may make the parent underflow, and the fix continues upward.
+   - **Merge** $`N`$ with a sibling and remove the separator from the parent. This may make the parent underflow, and the fix continues upward.
 4. If the root ends up with no keys (only one child), remove it: **the height decreases by 1**.
 
-### Deletion cases (slides, order $m = 3$: max 2 keys, min 1 key per non-root node)
+### Deletion cases (slides, order $`m = 3`$: max 2 keys, min 1 key per non-root node)
 
 Starting tree:
 
@@ -1559,7 +1581,7 @@ Starting tree:
         [15]  [20]   [30]
 ```
 
-### Deletion example from the construction problem (order $m = 4$; delete 6, 8, 10, 12)
+### Deletion example from the construction problem (order $`m = 4`$; delete 6, 8, 10, 12)
 
 Start from the final tree of Example 3 (min leaf keys = 2, min internal keys = 1):
 
@@ -1610,7 +1632,7 @@ Tree (internal nodes hold up to 2 keys, leaves up to 3):
       [1 8]  [11 15]  [16 17] [18 19]   [22 23] [28 31]   [41 52] [58 59 61]
 ```
 
-The slides show only the "before" tree. **Solution** (leaf min = 2, i.e. the $m = 4$ leaf rule):
+The slides show only the "before" tree. **Solution** (leaf min = 2, i.e. the $`m = 4`$ leaf rule):
 - Delete 52 → leaf [41 52] becomes [41] → underflow.
 - The right sibling [58 59 61] has 3 keys, more than the minimum, so **borrow** 58 → leaves [41 58] and [59 61].
 - Update the parent separator 58 → **59**.
@@ -1836,16 +1858,16 @@ SQL Query ──Parser──► Relational Algebra Expression ──Query Optimi
 
 | Category | Operators |
 |---|---|
-| **Unary** | SELECT $\sigma$, PROJECT $\pi$, RENAME $\rho$ |
-| **From set theory** (binary) | UNION $\cup$, INTERSECTION $\cap$, DIFFERENCE $-$, CARTESIAN PRODUCT $\times$ |
-| **Binary relational** | JOIN $\bowtie$ (theta, equi, natural), DIVISION $\div$ |
-| **Additional/extended** | Aggregate functions & grouping ($\mathcal{F}$ or $\gamma$), outer joins (⟕ ⟖ ⟗) |
+| **Unary** | SELECT $`\sigma`$, PROJECT $`\pi`$, RENAME $`\rho`$ |
+| **From set theory** (binary) | UNION $`\cup`$, INTERSECTION $`\cap`$, DIFFERENCE $`-`$, CARTESIAN PRODUCT $`\times`$ |
+| **Binary relational** | JOIN $`\bowtie`$ (theta, equi, natural), DIVISION $`\div`$ |
+| **Additional/extended** | Aggregate functions & grouping ($`\mathcal{F}`$ or $`\gamma`$), outer joins (⟕ ⟖ ⟗) |
 
 | Basic (fundamental) operators | Derived operators (expressible using basic ones) |
 |---|---|
-| $\sigma, \pi, \rho, \cup, -, \times$ | $\bowtie$ (join), $\div$ (division), $\cap$ (intersection) |
+| $`\sigma, \pi, \rho, \cup, -, \times`$ | $`\bowtie`$ (join), $`\div`$ (division), $`\cap`$ (intersection) |
 
-For example, $R \cap S = R - (R - S)$ and $R \bowtie_\theta S = \sigma_\theta(R \times S)$.
+For example, $`R \cap S = R - (R - S)`$ and $`R \bowtie_\theta S = \sigma_\theta(R \times S)`$.
 
 ## 6.3 Example schema: COMPANY (Elmasri & Navathe)
 
@@ -1860,34 +1882,46 @@ DEPENDENT     (ESSN, DEPENDENT_NAME, SEX, BDATE, RELATIONSHIP)
 
 Primary keys: SSN, DNUMBER, (DNUMBER, DLOCATION), PNUMBER, (ESSN, PNO), (ESSN, DEPENDENT_NAME).
 
-## 6.4 SELECT ($\sigma$)
+## 6.4 SELECT ($`\sigma`$)
 
 Selects the **subset of tuples (rows)** that satisfy a selection condition (predicate):
 
-$$\sigma_{p}(r)$$
+```math
+\sigma_{p}(r)
+```
 
-$\sigma$ is the select operator, $p$ is the predicate (a propositional-logic formula using $=, \ne, <, \le, >, \ge$ joined by $\wedge$ AND, $\vee$ OR, $\neg$ NOT), and $r$ is the relation.
+$`\sigma`$ is the select operator, $`p`$ is the predicate (a propositional-logic formula using $`=, \ne, <, \le, >, \ge`$ joined by $`\wedge`$ AND, $`\vee`$ OR, $`\neg`$ NOT), and $`r`$ is the relation.
 
-- **Selection does not reduce columns, only rows.** The result has the same schema as $r$.
-- $\sigma$ is **commutative**: $\sigma_{c_1}(\sigma_{c_2}(R)) = \sigma_{c_2}(\sigma_{c_1}(R)) = \sigma_{c_1 \wedge c_2}(R)$.
+- **Selection does not reduce columns, only rows.** The result has the same schema as $`r`$.
+- $`\sigma`$ is **commutative**: $`\sigma_{c_1}(\sigma_{c_2}(R)) = \sigma_{c_2}(\sigma_{c_1}(R)) = \sigma_{c_1 \wedge c_2}(R)`$.
 
 **Examples:**
 
-$$\sigma_{SALARY > 30000}(EMPLOYEE)$$
+```math
+\sigma_{SALARY > 30000}(EMPLOYEE)
+```
 
 selects the employees whose salary is more than 30,000.
 
 ```sql
 SELECT * FROM Student WHERE dept = 'CSE';
 ```
-$$\sigma_{dept='CSE'}(Student)$$
+```math
+\sigma_{dept='CSE'}(Student)
+```
 
 (WHERE → selection; FROM Student → relation; `SELECT *` → no projection.)
 
-$$\sigma_{Id>3000 \,\vee\, Hobby='hiking'}(Person) \qquad \sigma_{Id>3000 \,\wedge\, Id<3999}(Person)$$
-$$\sigma_{\neg(Hobby='hiking')}(Person) \;\equiv\; \sigma_{Hobby \ne 'hiking'}(Person)$$
+```math
+\sigma_{Id>3000 \,\vee\, Hobby='hiking'}(Person) \qquad \sigma_{Id>3000 \,\wedge\, Id<3999}(Person)
+```
+```math
+\sigma_{\neg(Hobby='hiking')}(Person) \;\equiv\; \sigma_{Hobby \ne 'hiking'}(Person)
+```
 
-$$\sigma_{(DNO=4 \,\wedge\, SALARY>25000) \,\vee\, (DNO=5 \,\wedge\, SALARY>30000)}(EMPLOYEE)$$
+```math
+\sigma_{(DNO=4 \,\wedge\, SALARY>25000) \,\vee\, (DNO=5 \,\wedge\, SALARY>30000)}(EMPLOYEE)
+```
 
 Result:
 
@@ -1897,11 +1931,13 @@ Result:
 | Jennifer | S | Wallace | 987654321 | 1941-06-20 | 291 Berry, Bellaire, TX | F | 43000 | 888665555 | 4 |
 | Ramesh | K | Narayan | 666884444 | 1962-09-15 | 975 Fire Oak, Humble, TX | M | 38000 | 333445555 | 5 |
 
-## 6.5 PROJECT ($\pi$)
+## 6.5 PROJECT ($`\pi`$)
 
 Keeps **only the listed attributes (columns)** and **eliminates duplicate tuples**, because a relation is a set.
 
-$$\pi_{LNAME, FNAME, SALARY}(EMPLOYEE)$$
+```math
+\pi_{LNAME, FNAME, SALARY}(EMPLOYEE)
+```
 
 | LNAME | FNAME | SALARY |
 |---|---|---|
@@ -1914,7 +1950,9 @@ $$\pi_{LNAME, FNAME, SALARY}(EMPLOYEE)$$
 | Jabbar | Ahmad | 25000 |
 | Borg | James | 55000 |
 
-$$\pi_{SEX, SALARY}(EMPLOYEE)$$
+```math
+\pi_{SEX, SALARY}(EMPLOYEE)
+```
 
 | SEX | SALARY |
 |---|---|
@@ -1933,27 +1971,35 @@ Only **7 rows** instead of 8. Alicia Zelaya and Joyce English are both (F, 25000
 ```sql
 SELECT name, age FROM Student WHERE dept = 'CSE';
 ```
-$$\pi_{name,\,age}\left(\sigma_{dept='CSE'}(Student)\right)$$
+```math
+\pi_{name,\,age}\left(\sigma_{dept='CSE'}(Student)\right)
+```
 
-First $\sigma$ filters rows, then $\pi$ filters columns. **Selection is applied before projection** so that attributes needed for filtering aren't lost.
+First $`\sigma`$ filters rows, then $`\pi`$ filters columns. **Selection is applied before projection** so that attributes needed for filtering aren't lost.
 
-## 6.6 Sequences of operations and RENAME ($\rho$)
+## 6.6 Sequences of operations and RENAME ($`\rho`$)
 
 As a single nested expression:
 
-$$\pi_{FNAME, LNAME, SALARY}\left(\sigma_{DNO=5}(EMPLOYEE)\right)$$
+```math
+\pi_{FNAME, LNAME, SALARY}\left(\sigma_{DNO=5}(EMPLOYEE)\right)
+```
 
 Or as a sequence with named intermediate relations:
 
-$$\text{DEP5\_EMPS} \leftarrow \sigma_{DNO=5}(EMPLOYEE)$$
-$$\text{RESULT} \leftarrow \pi_{FNAME, LNAME, SALARY}(\text{DEP5\_EMPS})$$
+```math
+\mathrm{DEP5\_EMPS} \leftarrow \sigma_{DNO=5}(EMPLOYEE)
+```
+```math
+\text{RESULT} \leftarrow \pi_{FNAME, LNAME, SALARY}(\mathrm{DEP5\_EMPS})
+```
 
 **RENAME** renames a relation and/or its attributes:
-- $\rho_{a/b}(R)$ renames attribute $b$ of $R$ to $a$ (slide notation).
-- General (Elmasri) forms: $\rho_{S(B_1,\dots,B_n)}(R)$ renames the relation to $S$ and its attributes to $B_1 \dots B_n$; $\rho_S(R)$ renames only the relation; $\rho_{(B_1,\dots,B_n)}(R)$ renames only the attributes.
-- Example: $\text{RESULT}(\text{FirstName}, \text{LastName}, \text{Salary}) \leftarrow \pi_{FNAME, LNAME, SALARY}(\text{DEP5\_EMPS})$
+- $`\rho_{a/b}(R)`$ renames attribute $`b`$ of $`R`$ to $`a`$ (slide notation).
+- General (Elmasri) forms: $`\rho_{S(B_1,\dots,B_n)}(R)`$ renames the relation to $`S`$ and its attributes to $`B_1 \dots B_n`$; $`\rho_S(R)`$ renames only the relation; $`\rho_{(B_1,\dots,B_n)}(R)`$ renames only the attributes.
+- Example: $`\text{RESULT}(\text{FirstName}, \text{LastName}, \text{Salary}) \leftarrow \pi_{FNAME, LNAME, SALARY}(\mathrm{DEP5\_EMPS})`$
 
-## 6.7 Set operations: $\cup$, $\cap$, $-$
+## 6.7 Set operations: $`\cup`$, $`\cap`$, $`-`$
 
 **Union compatibility** (required for all three):
 1. Both relations have the **same number of attributes**.
@@ -1961,7 +2007,7 @@ $$\text{RESULT} \leftarrow \pi_{FNAME, LNAME, SALARY}(\text{DEP5\_EMPS})$$
 
 Duplicates are removed automatically. By convention the result takes the **attribute names of the first relation**.
 
-### UNION $R \cup S$ — tuples in $R$ or $S$ (or both)
+### UNION $`R \cup S`$ — tuples in $`R`$ or $`S`$ (or both)
 
 **Example 1:**
 
@@ -1978,26 +2024,30 @@ Duplicates are removed automatically. By convention the result takes the **attri
 ```sql
 SELECT sid FROM Enroll UNION SELECT sid FROM Student;
 ```
-$$\pi_{sid}(Enroll) \cup \pi_{sid}(Student)$$
+```math
+\pi_{sid}(Enroll) \cup \pi_{sid}(Student)
+```
 
 **Example 3:** S1 = {(22, dustin, 7, 45.0), (31, lubber, 8, 55.5), (58, rusty, 10, 35.0)}, and S2 = {(28, yuppy, 9, 35.0), (31, lubber, 8, 55.5), (44, guppy, 5, 35.0), (58, rusty, 10, 35.0)}.
 
-$S1 \cup S2$ = {(22, dustin, 7, 45.0), (31, lubber, 8, 55.5), (58, rusty, 10, 35.0), (44, guppy, 5, 35.0), (28, yuppy, 9, 35.0)}. That is 5 tuples; lubber and rusty appear only once.
+$`S1 \cup S2`$ = {(22, dustin, 7, 45.0), (31, lubber, 8, 55.5), (58, rusty, 10, 35.0), (44, guppy, 5, 35.0), (28, yuppy, 9, 35.0)}. That is 5 tuples; lubber and rusty appear only once.
 
-### INTERSECTION $R \cap S$ — tuples in both $R$ and $S$
+### INTERSECTION $`R \cap S`$ — tuples in both $`R`$ and $`S`$
 
-**Example 1:** A = {(1, A, 2), (2, B, 4), (3, C, 6)}, B = {(1, A, 2), (4, D, 8), (5, E, 10)} over (k, x, y) → $A \cap B$ = {(1, A, 2)}.
+**Example 1:** A = {(1, A, 2), (2, B, 4), (3, C, 6)}, B = {(1, A, 2), (4, D, 8), (5, E, 10)} over (k, x, y) → $`A \cap B`$ = {(1, A, 2)}.
 
 **Example 2:**
 
 ```sql
 SELECT sid FROM Student INTERSECT SELECT sid FROM Enroll;
 ```
-$$\pi_{sid}(Student) \cap \pi_{sid}(Enroll)$$
+```math
+\pi_{sid}(Student) \cap \pi_{sid}(Enroll)
+```
 
 **Example 3:** EMP_TEST = {(100, James, Troy, 232434), (104, Kathy, Holland, 324343)}, EMP_DESIGN = {(103, Rose, Freser Town, 6744545), (102, Marry, Novi, 343613), (105, Laurry, Rochester Hills, 97676), (104, Kathy, Holland, 324343)} → EMP_TEST ∩ EMP_DESIGN = {(104, Kathy, Holland, 324343)}.
 
-### DIFFERENCE $R - S$ — tuples in $R$ but not in $S$
+### DIFFERENCE $`R - S`$ — tuples in $`R`$ but not in $`S`$
 
 **Example 1:** Course_1 − Course_2 = {(11, Foundation C), (31, JAVA)}.
 
@@ -2006,11 +2056,13 @@ $$\pi_{sid}(Student) \cap \pi_{sid}(Enroll)$$
 ```sql
 SELECT sid FROM Student EXCEPT SELECT sid FROM Enroll;   -- students not enrolled in any course
 ```
-$$\pi_{sid}(Student) - \pi_{sid}(Enroll)$$
+```math
+\pi_{sid}(Student) - \pi_{sid}(Enroll)
+```
 
 **Example 3:** X1 = {(Anoop, 22), (Saurav, 22), (Rakesh, 20), (Pritesh, 19)}, X2 = {(Anoop, 22), (Anurag, 23), (Ganesh, 21), (Saurav, 22), (Rakesh, 20)}.
-- $X1 - X2$ = {(Pritesh, 19)}
-- $X2 - X1$ = {(Anurag, 23), (Ganesh, 21)}
+- $`X1 - X2`$ = {(Pritesh, 19)}
+- $`X2 - X1`$ = {(Anurag, 23), (Ganesh, 21)}
 
 This shows that **difference is not commutative**.
 
@@ -2026,19 +2078,21 @@ INSTRUCTOR(FNAME, LNAME) = {John Smith, Ricardo Browne, Susan Yao, Francis Johns
 | STUDENT − INSTRUCTOR | Johnny Kohler, Barbara Jones, Amy Ford, Jimmy Wang, Ernest Gilbert |
 | INSTRUCTOR − STUDENT | John Smith, Ricardo Browne, Francis Johnson |
 
-$\cup$ and $\cap$ are **commutative and associative**; $-$ is **neither**.
+$`\cup`$ and $`\cap`$ are **commutative and associative**; $`-`$ is **neither**.
 
-## 6.8 CARTESIAN PRODUCT ($\times$)
+## 6.8 CARTESIAN PRODUCT ($`\times`$)
 
-$R \times S$ combines **every tuple of $R$ with every tuple of $S$**:
+$`R \times S`$ combines **every tuple of $`R`$ with every tuple of $`S`$**:
 
-$$\text{degree}(R \times S) = \text{degree}(R) + \text{degree}(S), \qquad |R \times S| = |R| \cdot |S|$$
+```math
+\text{degree}(R \times S) = \text{degree}(R) + \text{degree}(S), \qquad |R \times S| = |R| \cdot |S|
+```
 
 Not union-compatible. It is mostly meaningful when **followed by a selection**.
 
-**Example 1:** A(n) = {1, 2, 3}, B(c) = {x, y, z} → `SELECT * FROM A CROSS JOIN B` gives $3 \times 3 = 9$ tuples: (1,x) (1,y) (1,z) (2,x) (2,y) (2,z) (3,x) (3,y) (3,z).
+**Example 1:** A(n) = {1, 2, 3}, B(c) = {x, y, z} → `SELECT * FROM A CROSS JOIN B` gives $`3 \times 3 = 9`$ tuples: (1,x) (1,y) (1,z) (2,x) (2,y) (2,z) (3,x) (3,y) (3,z).
 
-**Example 2:** A1(Name, RollNo) = {(Anoop, 1), (Anurag, 2)}, A2(Name, RollNo) = {(Anoop, 1), (Anurag, 2), (Ganesh, 3)} → $A1 \times A2$ has $2 \times 3 = 6$ tuples:
+**Example 2:** A1(Name, RollNo) = {(Anoop, 1), (Anurag, 2)}, A2(Name, RollNo) = {(Anoop, 1), (Anurag, 2), (Ganesh, 3)} → $`A1 \times A2`$ has $`2 \times 3 = 6`$ tuples:
 
 | Name | RollNo | Name | RollNo |
 |---|---|---|---|
@@ -2051,17 +2105,29 @@ Not union-compatible. It is mostly meaningful when **followed by a selection**.
 
 **Example 3 (COMPANY):** the dependents of female employees.
 
-$$\text{FEMALE\_EMPS} \leftarrow \sigma_{SEX='F'}(EMPLOYEE)$$
-$$\text{EMPNAMES} \leftarrow \pi_{FNAME, LNAME, SSN}(\text{FEMALE\_EMPS})$$
-$$\text{EMP\_DEPENDENTS} \leftarrow \text{EMPNAMES} \times DEPENDENT$$
-$$\text{ACTUAL\_DEPENDENTS} \leftarrow \sigma_{SSN=ESSN}(\text{EMP\_DEPENDENTS})$$
-$$\text{RESULT} \leftarrow \pi_{FNAME, LNAME, DEPENDENT\_NAME}(\text{ACTUAL\_DEPENDENTS})$$
+```math
+\mathrm{FEMALE\_EMPS} \leftarrow \sigma_{SEX='F'}(EMPLOYEE)
+```
+```math
+\text{EMPNAMES} \leftarrow \pi_{FNAME, LNAME, SSN}(\mathrm{FEMALE\_EMPS})
+```
+```math
+\mathrm{EMP\_DEPENDENTS} \leftarrow \text{EMPNAMES} \times DEPENDENT
+```
+```math
+\mathrm{ACTUAL\_DEPENDENTS} \leftarrow \sigma_{SSN=ESSN}(\mathrm{EMP\_DEPENDENTS})
+```
+```math
+\text{RESULT} \leftarrow \pi_{FNAME, LNAME, DEPENDENT\_NAME}(\mathrm{ACTUAL\_DEPENDENTS})
+```
 
-## 6.9 JOIN ($\bowtie$)
+## 6.9 JOIN ($`\bowtie`$)
 
 A join is a **Cartesian product followed by a selection**:
 
-$$R \bowtie_{\theta} S \;=\; \sigma_{\theta}(R \times S)$$
+```math
+R \bowtie_{\theta} S \;=\; \sigma_{\theta}(R \times S)
+```
 
 ```
 Joins
@@ -2076,9 +2142,9 @@ Joins
 | `RIGHT (OUTER) JOIN` | All records from the right table plus the matched records from the left |
 | `FULL (OUTER) JOIN` | All records when there is a match in either table (all rows of both) |
 
-### Theta join ($\bowtie_\theta$)
+### Theta join ($`\bowtie_\theta`$)
 
-This is the general (conditional) join: $R \bowtie_\theta S$, where $\theta$ is any condition using $=, \ne, <, \le, >, \ge$.
+This is the general (conditional) join: $`R \bowtie_\theta S`$, where $`\theta`$ is any condition using $`=, \ne, <, \le, >, \ge`$.
 
 **Example:**
 
@@ -2089,7 +2155,9 @@ This is the general (conditional) join: $R \bowtie_\theta S$, where $\theta$ is 
 | 102 | Vijay | 19 | 101 | Noodles |
 | 103 | Sita | 21 | 103 | Burger |
 
-$$Customer \bowtie_{Customer.Cid > Order.Oid} Order$$
+```math
+Customer \bowtie_{Customer.Cid > Order.Oid} Order
+```
 
 | Cid | Cname | Age | Oid | Oname |
 |---|---|---|---|---|
@@ -2107,9 +2175,11 @@ SELECT Student.name, Enroll.grade
 FROM Student, Enroll
 WHERE Student.sid = Enroll.sid;
 ```
-$$\pi_{name,\,grade}\left(Student \bowtie_{Student.sid = Enroll.sid} Enroll\right)$$
+```math
+\pi_{name,\,grade}\left(Student \bowtie_{Student.sid = Enroll.sid} Enroll\right)
+```
 
-That is, $Student \times Enroll$ followed by $\sigma$ gives $\bowtie$, and then projection.
+That is, $`Student \times Enroll`$ followed by $`\sigma`$ gives $`\bowtie`$, and then projection.
 
 **Join condition vs. filter condition:**
 
@@ -2117,7 +2187,9 @@ That is, $Student \times Enroll$ followed by $\sigma$ gives $\bowtie$, and then 
 SELECT name FROM Student, Enroll
 WHERE Student.sid = Enroll.sid AND grade = 'A';
 ```
-$$\pi_{name}\left(\sigma_{grade='A'}\left(Student \bowtie_{Student.sid=Enroll.sid} Enroll\right)\right)$$
+```math
+\pi_{name}\left(\sigma_{grade='A'}\left(Student \bowtie_{Student.sid=Enroll.sid} Enroll\right)\right)
+```
 
 `Student.sid = Enroll.sid` is the **join** condition; `grade = 'A'` is a **filter** (selection).
 
@@ -2134,7 +2206,9 @@ A theta join whose condition contains **only equalities**. The result keeps **bo
 | 222-22-2222 | sue | | 2222 | 222-22-2222 |
 | 333-33-3333 | sara | | 3333 | 111-11-1111 |
 
-$$\text{RESULT} = Faculty \bowtie_{Faculty.FacSSN = Offering.FacSSN} Offering$$
+```math
+\text{RESULT} = Faculty \bowtie_{Faculty.FacSSN = Offering.FacSSN} Offering
+```
 
 ```sql
 SELECT * FROM Faculty, Offering WHERE Faculty.FacSSN = Offering.FacSSN;
@@ -2148,11 +2222,13 @@ SELECT * FROM Faculty, Offering WHERE Faculty.FacSSN = Offering.FacSSN;
 
 (sara has no offering, so she does not appear.)
 
-**Example 2:** S1(sid, sname, rating, age) = {(22, dustin, 7, 45.0), (31, lubber, 8, 55.5), (58, rusty, 10, 35.0)} and R1(sid, bid, day) = {(22, 101, 10/10/96), (58, 103, 11/12/96)}, where R1.sid is a foreign key. Then $S1 \bowtie_{S1.sid=R1.sid} R1$ = {(22, dustin, 7, 45.0, 101, 10/10/96), (58, rusty, 10, 35.0, 103, 11/12/96)}.
+**Example 2:** S1(sid, sname, rating, age) = {(22, dustin, 7, 45.0), (31, lubber, 8, 55.5), (58, rusty, 10, 35.0)} and R1(sid, bid, day) = {(22, 101, 10/10/96), (58, 103, 11/12/96)}, where R1.sid is a foreign key. Then $`S1 \bowtie_{S1.sid=R1.sid} R1`$ = {(22, dustin, 7, 45.0, 101, 10/10/96), (58, rusty, 10, 35.0, 103, 11/12/96)}.
 
 **Example 3 (COMPANY):** the manager of each department.
 
-$$\text{DEPT\_MGR} \leftarrow DEPARTMENT \bowtie_{MGRSSN = SSN} EMPLOYEE$$
+```math
+\mathrm{DEPT\_MGR} \leftarrow DEPARTMENT \bowtie_{MGRSSN = SSN} EMPLOYEE
+```
 
 | DNAME | DNUMBER | MGRSSN | … | FNAME | MINIT | LNAME | SSN | … |
 |---|---|---|---|---|---|---|---|---|
@@ -2171,7 +2247,7 @@ SELECT * FROM CLASS INNER JOIN CLASSINFO USING (ID);
 | 1 | AAA | CHENNAI |
 | 2 | BBB | MUMBAI |
 
-### Natural join ($\bowtie$, written `*` in Elmasri)
+### Natural join ($`\bowtie`$, written `*` in Elmasri)
 
 - An equi join on **all attributes with the same name**, with the duplicate columns **removed**.
 - It can only be performed if there is a common attribute, and the **name and type of that attribute must be the same**.
@@ -2188,7 +2264,7 @@ SELECT * FROM CLASS INNER JOIN CLASSINFO USING (ID);
 | George | 3401 | Finance | Production | Charles |
 | Harriet | 2202 | Sales | | |
 
-$Employee \bowtie Dept$:
+$`Employee \bowtie Dept`$:
 
 | Name | EmpId | DeptName | Manager |
 |---|---|---|---|
@@ -2199,7 +2275,7 @@ $Employee \bowtie Dept$:
 
 (Production has no employee and does not appear.)
 
-**Example 3:** $r(A,B,C,D)$ and $s(B,D,E)$, joined on the **common attributes B and D**.
+**Example 3:** $`r(A,B,C,D)`$ and $`s(B,D,E)`$, joined on the **common attributes B and D**.
 
 | r: A | B | C | D |
 |---|---|---|---|
@@ -2217,7 +2293,7 @@ $Employee \bowtie Dept$:
 | 2 | b | δ |
 | 3 | b | ε |
 
-$r \bowtie s$:
+$`r \bowtie s`$:
 
 | A | B | C | D | E |
 |---|---|---|---|---|
@@ -2227,11 +2303,11 @@ $r \bowtie s$:
 | α | 1 | γ | a | γ |
 | δ | 2 | β | b | δ |
 
-Equivalently, $r \bowtie s = \pi_{r.A, r.B, r.C, r.D, s.E}\left(\sigma_{r.B = s.B \,\wedge\, r.D = s.D}(r \times s)\right)$.
+Equivalently, $`r \bowtie s = \pi_{r.A, r.B, r.C, r.D, s.E}\left(\sigma_{r.B = s.B \,\wedge\, r.D = s.D}(r \times s)\right)`$.
 
 **Example 4 (COMPANY):**
-- $\text{PROJ\_DEPT} \leftarrow PROJECT \bowtie \rho_{(DNAME, DNUM, MGRSSN, MGRSTARTDATE)}(DEPARTMENT)$ joins on DNUM.
-- $\text{DEPT\_LOCS} \leftarrow DEPARTMENT \bowtie DEPT\_LOCATIONS$ joins on DNUMBER.
+- $`\mathrm{PROJ\_DEPT} \leftarrow PROJECT \bowtie \rho_{(DNAME, DNUM, MGRSSN, MGRSTARTDATE)}(DEPARTMENT)`$ joins on DNUM.
+- $`\mathrm{DEPT\_LOCS} \leftarrow DEPARTMENT \bowtie DEPT\_LOCATIONS`$ joins on DNUMBER.
 
 PROJ_DEPT:
 
@@ -2260,9 +2336,9 @@ An outer join keeps the matching tuples **plus the tuples that don't match**, pa
 
 | Operator | Keeps all tuples of | Symbol |
 |---|---|---|
-| Left outer join | Left relation | $R$ ⟕ $S$ |
-| Right outer join | Right relation | $R$ ⟖ $S$ |
-| Full outer join | Both relations | $R$ ⟗ $S$ |
+| Left outer join | Left relation | $`R`$ ⟕ $`S`$ |
+| Right outer join | Right relation | $`R`$ ⟖ $`S`$ |
+| Full outer join | Both relations | $`R`$ ⟗ $`S`$ |
 
 **Class / Classinfo examples:**
 
@@ -2312,7 +2388,7 @@ EMPLOYEE ⟗ DEPT (full outer, with an extra employee (105, Alex, 40)):
 | 105 | Alex | 40 | NULL | NULL |
 | NULL | NULL | NULL | 30 | Testing |
 
-**Products example (left join):** TABLE1 = {(Kiwis, $6), (Onions, $3), (Tomatoes, $7)}, TABLE2 = {(Kiwis, 10), (Onions, 6), (Broccoli, 5)}. The LEFT JOIN on Products gives {(Kiwis, $6, 10), (Onions, $3, 6), (Tomatoes, $7, NULL)}.
+**Products example (left join):** TABLE1 = {(Kiwis, \$6), (Onions, \$3), (Tomatoes, \$7)}, TABLE2 = {(Kiwis, 10), (Onions, 6), (Broccoli, 5)}. The LEFT JOIN on Products gives {(Kiwis, \$6, 10), (Onions, \$3, 6), (Tomatoes, \$7, NULL)}.
 
 **Right join example:** table112(id, bval1, bval2) = {(701, 405, 16), (704, 409, 14), (706, 403, 13), (709, 401, 12)} and table111(id, aval1) = {(1, 405), (2, 401), (3, 200), (4, 400)}. table112 RIGHT JOIN table111 ON bval1 = aval1 gives:
 
@@ -2343,14 +2419,16 @@ EMPLOYEE ⟗ DEPT (full outer, with an extra employee (105, Alex, 40)):
 | OIL 160 NULL (unmatched part) | ✓ | – | ✓ |
 | NULL 505 3.70 (unmatched product) | – | ✓ | ✓ |
 
-## 6.10 DIVISION ($\div$)
+## 6.10 DIVISION ($`\div`$)
 
 - Used for queries containing **"all"**, **"for all"**, **"in all"** or **"every"**. For example: *Which person has an account in **all** the banks of a particular city? Which students have taken **all** the courses required to graduate?*
-- For $R(A, B) \div S(B)$: the result contains the **values of $A$ that are paired in $R$ with every value of $B$ in $S$**.
+- For $`R(A, B) \div S(B)`$: the result contains the **values of $`A`$ that are paired in $`R`$ with every value of $`B`$ in $`S`$**.
 
-$$R \div S = \pi_A(R) - \pi_A\big((\pi_A(R) \times S) - R\big)$$
+```math
+R \div S = \pi_A(R) - \pi_A\big((\pi_A(R) \times S) - R\big)
+```
 
-(i.e. all candidate $A$ values, minus those that are missing at least one $B$ from $S$.)
+(i.e. all candidate $`A`$ values, minus those that are missing at least one $`B`$ from $`S`$.)
 
 **Example (slide):** A(x, y) = {(x1,y1), (x1,y2), (x1,y3), (x1,y4), (x2,y1), (x2,y2), (x3,y2), (x4,y2), (x4,y4)}
 
@@ -2362,7 +2440,9 @@ $$R \div S = \pi_A(R) - \pi_A\big((\pi_A(R) \times S) - R\big)$$
 
 **Example – "students who enrolled in ALL courses":**
 
-$$\pi_{sid,\,cid}(Enroll) \div \pi_{cid}(Course)$$
+```math
+\pi_{sid,\,cid}(Enroll) \div \pi_{cid}(Course)
+```
 
 ```sql
 SELECT sid FROM Enroll
@@ -2377,14 +2457,14 @@ HAVING COUNT(DISTINCT cid) = (SELECT COUNT(*) FROM Course);
 
 | Notation | Meaning |
 |---|---|
-| $\mathcal{F}_{MAX\ Salary}(Employee)$ | Maximum salary |
-| $\mathcal{F}_{MIN\ Salary}(Employee)$ | Minimum salary |
-| $\mathcal{F}_{SUM\ Salary}(Employee)$ | Sum of salaries |
-| ${}_{DNO}\mathcal{F}_{COUNT\ SSN,\ AVERAGE\ SALARY}(EMPLOYEE)$ | Per department: number of employees and average salary (grouping attributes go on the left) |
-| $\gamma_{count(*)}(Student)$ | `SELECT COUNT(*) FROM Student;` |
-| $\gamma_{dept,\ count(*)}(Student)$ | `SELECT dept, COUNT(*) FROM Student GROUP BY dept;` |
+| $`\mathcal{F}_{MAX\ Salary}(Employee)`$ | Maximum salary |
+| $`\mathcal{F}_{MIN\ Salary}(Employee)`$ | Minimum salary |
+| $`\mathcal{F}_{SUM\ Salary}(Employee)`$ | Sum of salaries |
+| $`{}_{DNO}\mathcal{F}_{COUNT\ SSN,\ AVERAGE\ SALARY}(EMPLOYEE)`$ | Per department: number of employees and average salary (grouping attributes go on the left) |
+| $`\gamma_{count(*)}(Student)`$ | `SELECT COUNT(*) FROM Student;` |
+| $`\gamma_{dept,\ count(*)}(Student)`$ | `SELECT dept, COUNT(*) FROM Student GROUP BY dept;` |
 
-In $\gamma$ notation, $\gamma$ is the grouping operator: the first attribute(s) are the grouping columns and the rest are aggregate functions.
+In $`\gamma`$ notation, $`\gamma`$ is the grouping operator: the first attribute(s) are the grouping columns and the rest are aggregate functions.
 
 Slide SQL example:
 
@@ -2408,16 +2488,16 @@ GROUP BY country.id, country.country_name;
 
 | Operation | Symbol | Purpose | SQL equivalent |
 |---|---|---|---|
-| SELECT | $\sigma$ (sigma) | Filter rows | `WHERE` |
-| PROJECT | $\pi$ (pi) | Choose columns (removes duplicates) | `SELECT DISTINCT col…` |
-| RENAME | $\rho$ (rho) | Rename relation/attributes | `AS` |
-| UNION | $\cup$ (cup) | Tuples in either | `UNION` |
-| INTERSECTION | $\cap$ (cap) | Tuples in both | `INTERSECT` |
-| DIFFERENCE | $-$ (minus) | Tuples in first, not second | `EXCEPT` / `MINUS` |
-| CARTESIAN PRODUCT | $\times$ (times) | All combinations | `CROSS JOIN` / `FROM R, S` |
-| JOIN | $\bowtie$ (bow-tie) | Product + selection | `JOIN … ON` |
-| DIVISION | $\div$ | "For all" queries | `NOT EXISTS … NOT EXISTS` / `GROUP BY … HAVING COUNT` |
-| AGGREGATE | $\mathcal{F}$ / $\gamma$ | Aggregates and grouping | `GROUP BY`, `COUNT`, `SUM` … |
+| SELECT | $`\sigma`$ (sigma) | Filter rows | `WHERE` |
+| PROJECT | $`\pi`$ (pi) | Choose columns (removes duplicates) | `SELECT DISTINCT col…` |
+| RENAME | $`\rho`$ (rho) | Rename relation/attributes | `AS` |
+| UNION | $`\cup`$ (cup) | Tuples in either | `UNION` |
+| INTERSECTION | $`\cap`$ (cap) | Tuples in both | `INTERSECT` |
+| DIFFERENCE | $`-`$ (minus) | Tuples in first, not second | `EXCEPT` / `MINUS` |
+| CARTESIAN PRODUCT | $`\times`$ (times) | All combinations | `CROSS JOIN` / `FROM R, S` |
+| JOIN | $`\bowtie`$ (bow-tie) | Product + selection | `JOIN … ON` |
+| DIVISION | $`\div`$ | "For all" queries | `NOT EXISTS … NOT EXISTS` / `GROUP BY … HAVING COUNT` |
+| AGGREGATE | $`\mathcal{F}`$ / $`\gamma`$ | Aggregates and grouping | `GROUP BY`, `COUNT`, `SUM` … |
 
 ---
 
@@ -2432,16 +2512,18 @@ GROUP BY country.id, country.country_name;
 
 **Basic mapping:**
 
-$$\texttt{SELECT } A_1,\dots,A_n \texttt{ FROM } R_1,\dots,R_m \texttt{ WHERE } P \;\;\Longrightarrow\;\; \pi_{A_1,\dots,A_n}\left(\sigma_P(R_1 \times R_2 \times \dots \times R_m)\right)$$
+```math
+\texttt{SELECT } A_1,\dots,A_n \texttt{ FROM } R_1,\dots,R_m \texttt{ WHERE } P \;\;\Longrightarrow\;\; \pi_{A_1,\dots,A_n}\left(\sigma_P(R_1 \times R_2 \times \dots \times R_m)\right)
+```
 
 | SQL clause | RA |
 |---|---|
-| `FROM R1, R2` | $R_1 \times R_2$ (or $\bowtie$ once the join condition is attached) |
-| `WHERE` | $\sigma$ |
-| `SELECT` list | $\pi$ |
-| `GROUP BY` / aggregates | $\mathcal{F}$ / $\gamma$ |
-| `UNION` / `INTERSECT` / `EXCEPT` | $\cup$ / $\cap$ / $-$ |
-| `AS` | $\rho$ |
+| `FROM R1, R2` | $`R_1 \times R_2`$ (or $`\bowtie`$ once the join condition is attached) |
+| `WHERE` | $`\sigma`$ |
+| `SELECT` list | $`\pi`$ |
+| `GROUP BY` / aggregates | $`\mathcal{F}`$ / $`\gamma`$ |
+| `UNION` / `INTERSECT` / `EXCEPT` | $`\cup`$ / $`\cap`$ / $`-`$ |
+| `AS` | $`\rho`$ |
 
 ## 7.2 Example: nested query → two blocks
 
@@ -2455,10 +2537,10 @@ WHERE  SALARY > ( SELECT MAX(SALARY)
 
 | Block | SQL | RA |
 |---|---|---|
-| Inner | `SELECT MAX(SALARY) FROM EMPLOYEE WHERE DNO = 5` | $\mathcal{F}_{MAX\ SALARY}\left(\sigma_{DNO=5}(EMPLOYEE)\right)$ → a constant $C$ |
-| Outer | `SELECT LNAME, FNAME FROM EMPLOYEE WHERE SALARY > C` | $\pi_{LNAME, FNAME}\left(\sigma_{SALARY > C}(EMPLOYEE)\right)$ |
+| Inner | `SELECT MAX(SALARY) FROM EMPLOYEE WHERE DNO = 5` | $`\mathcal{F}_{MAX\ SALARY}\left(\sigma_{DNO=5}(EMPLOYEE)\right)`$ → a constant $`C`$ |
+| Outer | `SELECT LNAME, FNAME FROM EMPLOYEE WHERE SALARY > C` | $`\pi_{LNAME, FNAME}\left(\sigma_{SALARY > C}(EMPLOYEE)\right)`$ |
 
-The inner block is evaluated once, and its result $C$ is used by the outer block. This is an *uncorrelated* nested query.
+The inner block is evaluated once, and its result $`C`$ is used by the outer block. This is an *uncorrelated* nested query.
 
 ## 7.3 Example: movie stars
 
@@ -2467,7 +2549,9 @@ SELECT movieTitle
 FROM   StarsIn, MovieStar
 WHERE  starName = name AND birthdate = 1960;
 ```
-$$\pi_{movieTitle}\left(\sigma_{starName = name \,\wedge\, birthdate = 1960}(StarsIn \times MovieStar)\right)$$
+```math
+\pi_{movieTitle}\left(\sigma_{starName = name \,\wedge\, birthdate = 1960}(StarsIn \times MovieStar)\right)
+```
 
 ## 7.4 Example: Stafford projects (Q2)
 
@@ -2479,7 +2563,9 @@ FROM   PROJECT AS P, DEPARTMENT AS D, EMPLOYEE AS E
 WHERE  P.DNUM = D.DNUMBER AND D.MGRSSN = E.SSN AND P.PLOCATION = 'Stafford';
 ```
 
-$$\pi_{PNUMBER, DNUM, LNAME, ADDRESS, BDATE}\Big(\big(\left(\sigma_{PLOCATION='Stafford'}(PROJECT)\right) \bowtie_{DNUM=DNUMBER} DEPARTMENT\big) \bowtie_{MGRSSN=SSN} EMPLOYEE\Big)$$
+```math
+\pi_{PNUMBER, DNUM, LNAME, ADDRESS, BDATE}\Big(\big(\left(\sigma_{PLOCATION='Stafford'}(PROJECT)\right) \bowtie_{DNUM=DNUMBER} DEPARTMENT\big) \bowtie_{MGRSSN=SSN} EMPLOYEE\Big)
+```
 
 ## 7.5 Sub-queries
 
@@ -2489,8 +2575,8 @@ $$\pi_{PNUMBER, DNUM, LNAME, ADDRESS, BDATE}\Big(\big(\left(\sigma_{PLOCATION='S
 SELECT name FROM Student WHERE sid IN (SELECT sid FROM Enroll);
 ```
 
-- Step 1 (subquery): $\pi_{sid}(Enroll)$
-- Step 2 (equivalent join): $\pi_{name}(Student \bowtie Enroll)$, or as a semi-join, $\pi_{name}(Student \ltimes Enroll)$
+- Step 1 (subquery): $`\pi_{sid}(Enroll)`$
+- Step 2 (equivalent join): $`\pi_{name}(Student \bowtie Enroll)`$, or as a semi-join, $`\pi_{name}(Student \ltimes Enroll)`$
 
 `IN` is usually converted into a **semi-join**.
 
@@ -2502,18 +2588,20 @@ SELECT name FROM Student WHERE sid NOT IN (SELECT sid FROM Enroll);
 
 Convert `NOT IN` into **set difference**. Both operands must be union-compatible, so take the difference on `sid` and join back:
 
-$$\pi_{name}\Big(Student \bowtie \big(\pi_{sid}(Student) - \pi_{sid}(Enroll)\big)\Big)$$
+```math
+\pi_{name}\Big(Student \bowtie \big(\pi_{sid}(Student) - \pi_{sid}(Enroll)\big)\Big)
+```
 
-(The slide writes $\pi_{name}(Student - (Student \bowtie Enroll))$. The idea is right, but $Student$ and $Student \bowtie Enroll$ have different schemas. See Errata.)
+(The slide writes $`\pi_{name}(Student - (Student \bowtie Enroll))`$. The idea is right, but $`Student`$ and $`Student \bowtie Enroll`$ have different schemas. See Errata.)
 
 ## 7.6 More SQL → RA practice (Supplementary, COMPANY schema)
 
 | Query | Relational algebra |
 |---|---|
-| Names and addresses of employees in the 'Research' department | $\pi_{FNAME, LNAME, ADDRESS}\left(\sigma_{DNAME='Research'}(DEPARTMENT) \bowtie_{DNUMBER=DNO} EMPLOYEE\right)$ |
-| SSNs of employees who work in dept 5 **or** supervise someone in dept 5 | $\pi_{SSN}(\sigma_{DNO=5}(EMPLOYEE)) \cup \pi_{SUPERSSN}(\sigma_{DNO=5}(EMPLOYEE))$ |
-| Employees with no dependents | $\pi_{LNAME, FNAME}\Big(EMPLOYEE \bowtie \big(\pi_{SSN}(EMPLOYEE) - \rho_{(SSN)}(\pi_{ESSN}(DEPENDENT))\big)\Big)$ |
-| Employees who work on **all** projects controlled by dept 5 | $\rho_{(SSN,PNO)}(\pi_{ESSN,PNO}(WORKS\_ON)) \div \rho_{(PNO)}(\pi_{PNUMBER}(\sigma_{DNUM=5}(PROJECT)))$, then join with EMPLOYEE for names |
+| Names and addresses of employees in the 'Research' department | $`\pi_{FNAME, LNAME, ADDRESS}\left(\sigma_{DNAME='Research'}(DEPARTMENT) \bowtie_{DNUMBER=DNO} EMPLOYEE\right)`$ |
+| SSNs of employees who work in dept 5 **or** supervise someone in dept 5 | $`\pi_{SSN}(\sigma_{DNO=5}(EMPLOYEE)) \cup \pi_{SUPERSSN}(\sigma_{DNO=5}(EMPLOYEE))`$ |
+| Employees with no dependents | $`\pi_{LNAME, FNAME}\Big(EMPLOYEE \bowtie \big(\pi_{SSN}(EMPLOYEE) - \rho_{(SSN)}(\pi_{ESSN}(DEPENDENT))\big)\Big)`$ |
+| Employees who work on **all** projects controlled by dept 5 | $`\rho_{(SSN,PNO)}(\pi_{ESSN,PNO}(WORKS\_ON)) \div \rho_{(PNO)}(\pi_{PNUMBER}(\sigma_{DNUM=5}(PROJECT)))`$, then join with EMPLOYEE for names |
 
 ---
 
@@ -2527,40 +2615,44 @@ $$\pi_{name}\Big(Student \bowtie \big(\pi_{sid}(Student) - \pi_{sid}(Enroll)\big
 - **Tuple relational calculus (TRC)** variables range over **tuples** of a relation. (Domain relational calculus variables range over attribute values.)
 - A TRC query has the form
 
-$$\{\, t \mid \text{COND}(t) \,\}$$
+```math
+\{\, t \mid \text{COND}(t) \,\}
+```
 
-where $t$ is a **tuple variable** and $\text{COND}(t)$ is a formula. The result is the set of all tuples $t$ that make COND true.
+where $`t`$ is a **tuple variable** and $`\text{COND}(t)`$ is a formula. The result is the set of all tuples $`t`$ that make COND true.
 
 ## 8.2 Formulas
 
 Atoms:
-1. $R(t)$ – $t$ is a tuple of relation $R$ (the **range relation**)
-2. $t_i.A \;\text{op}\; t_j.B$ with op $\in \{=, <, \le, >, \ge, \ne\}$
-3. $t_i.A \;\text{op}\; c$, where $c$ is a constant
+1. $`R(t)`$ – $`t`$ is a tuple of relation $`R`$ (the **range relation**)
+2. $`t_i.A \;\text{op}\; t_j.B`$ with op $`\in \{=, <, \le, >, \ge, \ne\}`$
+3. $`t_i.A \;\text{op}\; c`$, where $`c`$ is a constant
 
-Formulas are built with $\wedge$ (AND), $\vee$ (OR), $\neg$ (NOT) and the quantifiers:
-- **Existential** $(\exists t)(F)$ – true if **some** tuple $t$ makes $F$ true.
-- **Universal** $(\forall t)(F)$ – true if **every** tuple $t$ makes $F$ true.
+Formulas are built with $`\wedge`$ (AND), $`\vee`$ (OR), $`\neg`$ (NOT) and the quantifiers:
+- **Existential** $`(\exists t)(F)`$ – true if **some** tuple $`t`$ makes $`F`$ true.
+- **Universal** $`(\forall t)(F)`$ – true if **every** tuple $`t`$ makes $`F`$ true.
 
-A tuple variable is **bound** if it is quantified and **free** otherwise. Only the free variables may appear to the left of the bar $\mid$.
+A tuple variable is **bound** if it is quantified and **free** otherwise. Only the free variables may appear to the left of the bar $`\mid`$.
 
 Useful equivalences:
 
-$$(\forall x)(P(x)) \equiv \neg(\exists x)(\neg P(x)), \qquad (\exists x)(P(x)) \equiv \neg(\forall x)(\neg P(x)), \qquad P \Rightarrow Q \equiv \neg P \vee Q$$
+```math
+(\forall x)(P(x)) \equiv \neg(\exists x)(\neg P(x)), \qquad (\exists x)(P(x)) \equiv \neg(\forall x)(\neg P(x)), \qquad P \Rightarrow Q \equiv \neg P \vee Q
+```
 
 ## 8.3 Examples
 
 | Query | TRC | RA equivalent |
 |---|---|---|
-| Employees earning more than 50000 | $\{\, t \mid EMPLOYEE(t) \wedge t.SALARY > 50000 \,\}$ | $\sigma_{SALARY>50000}(EMPLOYEE)$ |
-| Only their first and last names | $\{\, t.FNAME, t.LNAME \mid EMPLOYEE(t) \wedge t.SALARY > 50000 \,\}$ | $\pi_{FNAME,LNAME}(\sigma_{SALARY>50000}(EMPLOYEE))$ |
-| Name and address of employees in 'Research' | $\{\, t.FNAME, t.LNAME, t.ADDRESS \mid EMPLOYEE(t) \wedge (\exists d)(DEPARTMENT(d) \wedge d.DNAME='Research' \wedge d.DNUMBER = t.DNO) \,\}$ | $\pi(\sigma_{DNAME='Research'}(DEPARTMENT) \bowtie_{DNUMBER=DNO} EMPLOYEE)$ |
-| Employees with no dependents | $\{\, e.FNAME, e.LNAME \mid EMPLOYEE(e) \wedge \neg(\exists d)(DEPENDENT(d) \wedge e.SSN = d.ESSN) \,\}$ | uses $-$ |
-| Employees who work on **every** project of dept 5 | $\{\, e.LNAME \mid EMPLOYEE(e) \wedge (\forall x)\big(\neg PROJECT(x) \vee x.DNUM \ne 5 \vee (\exists w)(WORKS\_ON(w) \wedge w.ESSN = e.SSN \wedge w.PNO = x.PNUMBER)\big) \,\}$ | uses $\div$ |
+| Employees earning more than 50000 | $`\{\, t \mid EMPLOYEE(t) \wedge t.SALARY > 50000 \,\}`$ | $`\sigma_{SALARY>50000}(EMPLOYEE)`$ |
+| Only their first and last names | $`\{\, t.FNAME, t.LNAME \mid EMPLOYEE(t) \wedge t.SALARY > 50000 \,\}`$ | $`\pi_{FNAME,LNAME}(\sigma_{SALARY>50000}(EMPLOYEE))`$ |
+| Name and address of employees in 'Research' | $`\{\, t.FNAME, t.LNAME, t.ADDRESS \mid EMPLOYEE(t) \wedge (\exists d)(DEPARTMENT(d) \wedge d.DNAME='Research' \wedge d.DNUMBER = t.DNO) \,\}`$ | $`\pi(\sigma_{DNAME='Research'}(DEPARTMENT) \bowtie_{DNUMBER=DNO} EMPLOYEE)`$ |
+| Employees with no dependents | $`\{\, e.FNAME, e.LNAME \mid EMPLOYEE(e) \wedge \neg(\exists d)(DEPENDENT(d) \wedge e.SSN = d.ESSN) \,\}`$ | uses $`-`$ |
+| Employees who work on **every** project of dept 5 | $`\{\, e.LNAME \mid EMPLOYEE(e) \wedge (\forall x)\big(\neg PROJECT(x) \vee x.DNUM \ne 5 \vee (\exists w)(WORKS\_ON(w) \wedge w.ESSN = e.SSN \wedge w.PNO = x.PNUMBER)\big) \,\}`$ | uses $`\div`$ |
 
 ## 8.4 Safe expressions and expressive power
 
-- A TRC expression is **safe** if every value in its result comes from the **domain of the expression** (values that appear in the relations or constants it mentions). For example, $\{ t \mid \neg EMPLOYEE(t) \}$ is **unsafe**, because it would return infinitely many tuples.
+- A TRC expression is **safe** if every value in its result comes from the **domain of the expression** (values that appear in the relations or constants it mentions). For example, $`\{ t \mid \neg EMPLOYEE(t) \}`$ is **unsafe**, because it would return infinitely many tuples.
 - **Codd's theorem:** safe TRC, safe DRC and basic relational algebra have the **same expressive power**. A language that can express every RA query is called **relationally complete**.
 
 ---
@@ -2737,53 +2829,85 @@ WHERE  PNAME = 'Aquarius' AND PNUMBER = PNO AND ESSN = SSN AND BDATE > '1957-12-
 
 ## 9.4 Transformation (equivalence) rules
 
-$E, E_1, E_2, E_3$ are RA expressions, $\theta$ are conditions, and $L$ are attribute lists.
+$`E, E_1, E_2, E_3`$ are RA expressions, $`\theta`$ are conditions, and $`L`$ are attribute lists.
 
 1. **Cascade of σ:** a conjunctive selection can be broken into a sequence of individual selections.
-$$\sigma_{\theta_1 \wedge \theta_2}(E) = \sigma_{\theta_1}\left(\sigma_{\theta_2}(E)\right)$$
+```math
+\sigma_{\theta_1 \wedge \theta_2}(E) = \sigma_{\theta_1}\left(\sigma_{\theta_2}(E)\right)
+```
 
 2. **Commutativity of σ:**
-$$\sigma_{\theta_1}\left(\sigma_{\theta_2}(E)\right) = \sigma_{\theta_2}\left(\sigma_{\theta_1}(E)\right)$$
+```math
+\sigma_{\theta_1}\left(\sigma_{\theta_2}(E)\right) = \sigma_{\theta_2}\left(\sigma_{\theta_1}(E)\right)
+```
 
 3. **Cascade of π:** only the last (outermost) projection in a sequence is needed.
-$$\pi_{L_1}\left(\pi_{L_2}\left(\dots\left(\pi_{L_n}(E)\right)\dots\right)\right) = \pi_{L_1}(E) \qquad (L_1 \subseteq L_2 \subseteq \dots \subseteq L_n)$$
+```math
+\pi_{L_1}\left(\pi_{L_2}\left(\dots\left(\pi_{L_n}(E)\right)\dots\right)\right) = \pi_{L_1}(E) \qquad (L_1 \subseteq L_2 \subseteq \dots \subseteq L_n)
+```
 
 4. **Selections combine with Cartesian products and theta joins:**
-$$\sigma_{\theta}(E_1 \times E_2) = E_1 \bowtie_{\theta} E_2$$
-$$\sigma_{\theta_1}(E_1 \bowtie_{\theta_2} E_2) = E_1 \bowtie_{\theta_1 \wedge \theta_2} E_2$$
+```math
+\sigma_{\theta}(E_1 \times E_2) = E_1 \bowtie_{\theta} E_2
+```
+```math
+\sigma_{\theta_1}(E_1 \bowtie_{\theta_2} E_2) = E_1 \bowtie_{\theta_1 \wedge \theta_2} E_2
+```
 
 5. **Theta joins (and natural joins, and ×) are commutative:**
-$$E_1 \bowtie_{\theta} E_2 = E_2 \bowtie_{\theta} E_1$$
+```math
+E_1 \bowtie_{\theta} E_2 = E_2 \bowtie_{\theta} E_1
+```
 
 6. **Joins are associative:**
-$$(E_1 \bowtie E_2) \bowtie E_3 = E_1 \bowtie (E_2 \bowtie E_3)$$
-$$(E_1 \bowtie_{\theta_1} E_2) \bowtie_{\theta_2 \wedge \theta_3} E_3 = E_1 \bowtie_{\theta_1 \wedge \theta_3} (E_2 \bowtie_{\theta_2} E_3)$$
-where $\theta_2$ involves attributes from $E_2$ and $E_3$ only.
+```math
+(E_1 \bowtie E_2) \bowtie E_3 = E_1 \bowtie (E_2 \bowtie E_3)
+```
+```math
+(E_1 \bowtie_{\theta_1} E_2) \bowtie_{\theta_2 \wedge \theta_3} E_3 = E_1 \bowtie_{\theta_1 \wedge \theta_3} (E_2 \bowtie_{\theta_2} E_3)
+```
+where $`\theta_2`$ involves attributes from $`E_2`$ and $`E_3`$ only.
 
 7. **σ distributes over theta join:**
-   - (a) if $\theta_0$ involves only attributes of $E_1$:
-   $$\sigma_{\theta_0}(E_1 \bowtie_{\theta} E_2) = \left(\sigma_{\theta_0}(E_1)\right) \bowtie_{\theta} E_2$$
-   - (b) if $\theta_1$ involves only $E_1$'s attributes and $\theta_2$ only $E_2$'s:
-   $$\sigma_{\theta_1 \wedge \theta_2}(E_1 \bowtie_{\theta} E_2) = \left(\sigma_{\theta_1}(E_1)\right) \bowtie_{\theta} \left(\sigma_{\theta_2}(E_2)\right)$$
+   - (a) if $`\theta_0`$ involves only attributes of $`E_1`$:
+   ```math
+   \sigma_{\theta_0}(E_1 \bowtie_{\theta} E_2) = \left(\sigma_{\theta_0}(E_1)\right) \bowtie_{\theta} E_2
+   ```
+   - (b) if $`\theta_1`$ involves only $`E_1`$'s attributes and $`\theta_2`$ only $`E_2`$'s:
+   ```math
+   \sigma_{\theta_1 \wedge \theta_2}(E_1 \bowtie_{\theta} E_2) = \left(\sigma_{\theta_1}(E_1)\right) \bowtie_{\theta} \left(\sigma_{\theta_2}(E_2)\right)
+   ```
 
 8. **π distributes over theta join:**
-   - (a) if the join condition $\theta$ involves only attributes in $L_1 \cup L_2$ ($L_1$ from $E_1$, $L_2$ from $E_2$):
-   $$\pi_{L_1 \cup L_2}(E_1 \bowtie_{\theta} E_2) = \left(\pi_{L_1}(E_1)\right) \bowtie_{\theta} \left(\pi_{L_2}(E_2)\right)$$
-   - (b) in general, with $L_3$ = attributes of $E_1$ used in $\theta$ but not in $L_1 \cup L_2$, and $L_4$ = attributes of $E_2$ used in $\theta$ but not in $L_1 \cup L_2$:
-   $$\pi_{L_1 \cup L_2}(E_1 \bowtie_{\theta} E_2) = \pi_{L_1 \cup L_2}\left(\left(\pi_{L_1 \cup L_3}(E_1)\right) \bowtie_{\theta} \left(\pi_{L_2 \cup L_4}(E_2)\right)\right)$$
+   - (a) if the join condition $`\theta`$ involves only attributes in $`L_1 \cup L_2`$ ($`L_1`$ from $`E_1`$, $`L_2`$ from $`E_2`$):
+   ```math
+   \pi_{L_1 \cup L_2}(E_1 \bowtie_{\theta} E_2) = \left(\pi_{L_1}(E_1)\right) \bowtie_{\theta} \left(\pi_{L_2}(E_2)\right)
+   ```
+   - (b) in general, with $`L_3`$ = attributes of $`E_1`$ used in $`\theta`$ but not in $`L_1 \cup L_2`$, and $`L_4`$ = attributes of $`E_2`$ used in $`\theta`$ but not in $`L_1 \cup L_2`$:
+   ```math
+   \pi_{L_1 \cup L_2}(E_1 \bowtie_{\theta} E_2) = \pi_{L_1 \cup L_2}\left(\left(\pi_{L_1 \cup L_3}(E_1)\right) \bowtie_{\theta} \left(\pi_{L_2 \cup L_4}(E_2)\right)\right)
+   ```
 
 9. **∪ and ∩ are commutative** (set difference is **not**):
-$$E_1 \cup E_2 = E_2 \cup E_1, \qquad E_1 \cap E_2 = E_2 \cap E_1$$
+```math
+E_1 \cup E_2 = E_2 \cup E_1, \qquad E_1 \cap E_2 = E_2 \cap E_1
+```
 
 10. **∪ and ∩ are associative:**
-$$(E_1 \cup E_2) \cup E_3 = E_1 \cup (E_2 \cup E_3), \qquad (E_1 \cap E_2) \cap E_3 = E_1 \cap (E_2 \cap E_3)$$
+```math
+(E_1 \cup E_2) \cup E_3 = E_1 \cup (E_2 \cup E_3), \qquad (E_1 \cap E_2) \cap E_3 = E_1 \cap (E_2 \cap E_3)
+```
 
 11. **σ distributes over ∪, ∩ and −:**
-$$\sigma_P(E_1 - E_2) = \sigma_P(E_1) - \sigma_P(E_2) = \sigma_P(E_1) - E_2$$
-(and similarly $\sigma_P(E_1 \cup E_2) = \sigma_P(E_1) \cup \sigma_P(E_2)$, $\sigma_P(E_1 \cap E_2) = \sigma_P(E_1) \cap \sigma_P(E_2)$)
+```math
+\sigma_P(E_1 - E_2) = \sigma_P(E_1) - \sigma_P(E_2) = \sigma_P(E_1) - E_2
+```
+(and similarly $`\sigma_P(E_1 \cup E_2) = \sigma_P(E_1) \cup \sigma_P(E_2)`$, $`\sigma_P(E_1 \cap E_2) = \sigma_P(E_1) \cap \sigma_P(E_2)`$)
 
 12. **π distributes over ∪:**
-$$\pi_L(E_1 \cup E_2) = \left(\pi_L(E_1)\right) \cup \left(\pi_L(E_2)\right)$$
+```math
+\pi_L(E_1 \cup E_2) = \left(\pi_L(E_1)\right) \cup \left(\pi_L(E_2)\right)
+```
 
 ## 9.5 Outline of the heuristic optimisation algorithm (Elmasri)
 
@@ -2804,22 +2928,22 @@ $$\pi_L(E_1 \cup E_2) = \left(\pi_L(E_1)\right) \cup \left(\pi_L(E_2)\right)$$
 
 | Concept | Formula |
 |---|---|
-| Blocking factor | $bfr = \lfloor B / R \rfloor$ |
-| Unused space per block | $B - bfr \cdot R$ |
-| Blocks for $r$ records | $b = \lceil r / bfr \rceil$ |
+| Blocking factor | $`bfr = \lfloor B / R \rfloor`$ |
+| Unused space per block | $`B - bfr \cdot R`$ |
+| Blocks for $`r`$ records | $`b = \lceil r / bfr \rceil`$ |
 | Disk access time | seek time + rotational latency (+ transfer) |
-| Linear search (unordered) | avg $b/2$, worst $b$ block accesses |
-| Binary search (ordered) | $\lceil \log_2 b \rceil$ |
-| Multilevel index levels | $t = \lceil \log_{fo} r_1 \rceil$; search cost $t + 1$ |
-| Linear probing | $(h(k) + i) \bmod m$ |
-| Quadratic probing | $(h(k) + i^2) \bmod m$ |
-| Double hashing | $(h_1(k) + i \cdot h_2(k)) \bmod m$, with $h_2(k) \ne 0$ |
-| Extendible hashing | directory size $2^{GD}$; entries per bucket $2^{GD-LD}$; double only if $LD = GD$ |
-| B+ tree (order $m$) | max keys $m-1$; internal min children $\lceil m/2 \rceil$; internal min keys $\lceil m/2 \rceil - 1$; leaf min keys $\lceil (m-1)/2 \rceil$ |
-| Join | $R \bowtie_\theta S = \sigma_\theta(R \times S)$ |
-| Intersection | $R \cap S = R - (R - S)$ |
-| Division | $R \div S = \pi_A(R) - \pi_A((\pi_A(R) \times S) - R)$ |
-| Product sizes | degree $n + m$, cardinality $\lvert R \rvert \cdot \lvert S \rvert$ |
+| Linear search (unordered) | avg $`b/2`$, worst $`b`$ block accesses |
+| Binary search (ordered) | $`\lceil \log_2 b \rceil`$ |
+| Multilevel index levels | $`t = \lceil \log_{fo} r_1 \rceil`$; search cost $`t + 1`$ |
+| Linear probing | $`(h(k) + i) \bmod m`$ |
+| Quadratic probing | $`(h(k) + i^2) \bmod m`$ |
+| Double hashing | $`(h_1(k) + i \cdot h_2(k)) \bmod m`$, with $`h_2(k) \ne 0`$ |
+| Extendible hashing | directory size $`2^{GD}`$; entries per bucket $`2^{GD-LD}`$; double only if $`LD = GD`$ |
+| B+ tree (order $`m`$) | max keys $`m-1`$; internal min children $`\lceil m/2 \rceil`$; internal min keys $`\lceil m/2 \rceil - 1`$; leaf min keys $`\lceil (m-1)/2 \rceil`$ |
+| Join | $`R \bowtie_\theta S = \sigma_\theta(R \times S)`$ |
+| Intersection | $`R \cap S = R - (R - S)`$ |
+| Division | $`R \div S = \pi_A(R) - \pi_A((\pi_A(R) \times S) - R)`$ |
+| Product sizes | degree $`n + m`$, cardinality $`\lvert R \rvert \cdot \lvert S \rvert`$ |
 
 ### One-liners
 - **Open hashing = separate chaining** (closed addressing); **closed hashing = open addressing** (probing).
@@ -2846,15 +2970,15 @@ Slide numbers refer to `BACSE202-DBS-Module-3 LSM trees.ppt` unless marked *idx*
 | Slide | What the slide says | Correct version |
 |---|---|---|
 | 5 | Double-buffer figure shows "Fill A" for blocks i+3 and i+4 | Buffers alternate: i+3 → Fill **B**, i+4 → Fill A |
-| 17 | $H(x) \bmod 5$ table shows slots 3 and 4 empty | 223 mod 5 = 3 and 144 mod 5 = 4 (the figure only shows 3 of the 5 keys) |
+| 17 | $`H(x) \bmod 5`$ table shows slots 3 and 4 empty | 223 mod 5 = 3 and 144 mod 5 = 4 (the figure only shows 3 of the 5 keys) |
 | 37 | Quadratic probing is "also known as the mid-square method" | Mid-square is a *hash-function* method, not a probing method |
-| 38, 41 | Collision function written $f(i) = i*2$ / $(u + i*2)$ | Should be $i^2$, as the worked steps actually use |
-| 41 | $73 \bmod 7 = 4$ | $73 \bmod 7 = 3$ |
-| 41 | 101 → collision "??" | With the slide's own placements slot 3 was free. With the correct 73 → 3, 101 collides at 3 and goes to $3 + 1^2 = 4$ |
-| 49 | Formula written $(u + v^i) \bmod m$ | $(u + v \cdot i) \bmod m$ |
-| 54 | $(7 + 9 \times 2) \bmod 10 = 6$ | $25 \bmod 10 = 5$ (and slot 6 is empty in that table) |
+| 38, 41 | Collision function written $`f(i) = i*2`$ / $`(u + i*2)`$ | Should be $`i^2`$, as the worked steps actually use |
+| 41 | $`73 \bmod 7 = 4`$ | $`73 \bmod 7 = 3`$ |
+| 41 | 101 → collision "??" | With the slide's own placements slot 3 was free. With the correct 73 → 3, 101 collides at 3 and goes to $`3 + 1^2 = 4`$ |
+| 49 | Formula written $`(u + v^i) \bmod m`$ | $`(u + v \cdot i) \bmod m`$ |
+| 54 | $`(7 + 9 \times 2) \bmod 10 = 6`$ | $`25 \bmod 10 = 5`$ (and slot 6 is empty in that table) |
 | 54 | Key 7 row: "cannot map k 13" | Should read "cannot map **k 7**" |
-| 89 | Bucket B2 shown as {5, 21, 13, 9} | $9 = 1001$ → **001** → stays in B = {1, 9}; B2 = {5, 21, 13} |
+| 89 | Bucket B2 shown as {5, 21, 13, 9} | $`9 = 1001`$ → **001** → stays in B = {1, 9}; B2 = {5, 21, 13} |
 | 97 | After deleting 17: "001 → {1}, 101 → {5}" | 13 hasn't been deleted yet: 101 → **{5, 13}** |
 | 110 | MSB example: directory 01 has no pointer; local depths shown as 1 / blank | 00 and 01 both → [5, 6, 11] (LD 1); [17, 22] and [24, 30] have LD **2** |
 | 126 | Sparse lookup: "largest search-key value **<** K" | **≤ K** (as idx slide 25 states) |
@@ -2862,19 +2986,19 @@ Slide numbers refer to `BACSE202-DBS-Module-3 LSM trees.ppt` unless marked *idx*
 | 136, 138, idx 38–39 | B-/B+-tree called a "balanced **binary** search tree" | A balanced **multiway** (m-ary) search tree. Linked leaves are a B+-tree feature |
 | 138 | "Lead nodes", "2 to 4 values", "3 to 5 children" for n = 3 | "Leaf"; the stated ranges don't match n = 3 |
 | 142 vs 124/131 | El Said 80000, Califieri 60000 | Inconsistent with the other slides (El Said 60000, Califieri 62000). Irrelevant to the B+ tree structure |
-| 147, idx 42, 49, 53 | Leaf max keys = $m$, leaf min keys = $\lceil m/2 \rceil$ | Every worked example uses leaf max $= m-1$ and leaf min $= \lceil (m-1)/2 \rceil$ (as slide 155 states) |
+| 147, idx 42, 49, 53 | Leaf max keys = $`m`$, leaf min keys = $`\lceil m/2 \rceil`$ | Every worked example uses leaf max $`= m-1`$ and leaf min $`= \lceil (m-1)/2 \rceil`$ (as slide 155 states) |
 | 153–154 | "Delete 52" – result never shown | See §4.6: borrow 58 from the right sibling, separator 58 → 59 |
 | 160 | "Delete 6, 8, 10, 12" – 12 is never deleted | After deleting 12: root [14 18] → [2 4], [14 16], [18 20] |
-| 194 | "σ is the predicate … prepositional logic"; output text says 300000 | σ is the *operator*, $p$ is the predicate, *propositional* logic; the condition is SALARY > 30,000 |
+| 194 | "σ is the predicate … prepositional logic"; output text says 300000 | σ is the *operator*, $`p`$ is the predicate, *propositional* logic; the condition is SALARY > 30,000 |
 | 203 | UNION symbol typed as υ (upsilon) | ∪ |
 | 212 | Result table titled "UNION" | It is the result of **INTERSECT** |
 | 217 | Caption (c) "STUDENT ∪ INSTRUCTOR" | (c) is **STUDENT ∩ INSTRUCTOR** |
 | 231 | `Faculty.FacSSM` | `Faculty.FacSSN` |
 | 249 | Classinfo header "ID, NAME" | "ID, ADDRESS" |
 | 250 | Result OrderDate values differ from the input table | Dates should match the Orders table; the row structure is correct |
-| 254 | $\pi_{name}(Student - (Student \bowtie Enroll))$ | Not union-compatible. Use $\pi_{name}(Student \bowtie (\pi_{sid}(Student) - \pi_{sid}(Enroll)))$ |
+| 254 | $`\pi_{name}(Student - (Student \bowtie Enroll))`$ | Not union-compatible. Use $`\pi_{name}(Student \bowtie (\pi_{sid}(Student) - \pi_{sid}(Enroll)))`$ |
 | 272 | `P.NUMBER` | `P.PNUMBER` |
 | 276 | `PNMUBER` | `PNUMBER` |
-| 281 | $E_1 \bowtie_{\sigma_{\theta_2}} E_2$ | $E_1 \bowtie_{\theta_2} E_2$ |
+| 281 | $`E_1 \bowtie_{\sigma_{\theta_2}} E_2`$ | $`E_1 \bowtie_{\theta_2} E_2`$ |
 | idx 20 | Gold's ID 33465 | 33456 (as on the other slides) |
 | idx 32 | Secondary-level index lists 320 before 310 | Index entries must be sorted: 300, 310, 320 |
